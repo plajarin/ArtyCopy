@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#D4006B">
+<meta name="description" content="ArtyCopy by ArtyVinos – Calca cualquier dibujo con tu móvil">
+<title>ArtyCopy – ArtyVinos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --mag:#D4006B; --mag2:#FF1A85; --teal:#00B4B4; --teal2:#00D4D4;
+  --white:#FFFFFF; --black:#111111; --gray:#F0F0F0; --gray2:#E0E0E0;
+  --muted:#888888; --radius:18px;
+}
+html, body { width:100%; height:100%; overflow:hidden; background:var(--white); color:var(--black); font-family:'DM Sans',sans-serif; touch-action:none; -webkit-tap-highlight-color:transparent; user-select:none; -webkit-user-select:none; }
+.screen { position:fixed; inset:0; display:flex; flex-direction:column; transition:opacity 0.38s ease, transform 0.38s ease; }
+.screen.hidden { opacity:0; pointer-events:none; transform:scale(0.96); }
+
+#home { background:var(--white); align-items:center; justify-content:center; padding:0 28px 40px; position:relative; overflow:hidden; }
+#home::before { content:''; position:absolute; top:-120px; right:-120px; width:320px; height:320px; border-radius:50%; background:radial-gradient(circle,rgba(212,0,107,0.12) 0%,transparent 70%); pointer-events:none; }
+#home::after { content:''; position:absolute; bottom:-80px; left:-80px; width:280px; height:280px; border-radius:50%; background:radial-gradient(circle,rgba(0,180,180,0.12) 0%,transparent 70%); pointer-events:none; }
+
+.brand-badge { position:absolute; top:max(env(safe-area-inset-top,16px),16px); right:20px; font-size:11px; font-weight:600; letter-spacing:1.5px; color:var(--muted); text-transform:uppercase; }
+
+.logo-area { display:flex; flex-direction:column; align-items:center; margin-bottom:44px; }
+.logo-mark { width:90px; height:90px; border-radius:26px; background:linear-gradient(135deg,var(--mag) 0%,var(--mag2) 100%); display:flex; align-items:center; justify-content:center; margin-bottom:20px; box-shadow:0 12px 40px rgba(212,0,107,0.35); animation:logo-float 4s ease-in-out infinite; position:relative; }
+@keyframes logo-float { 0%,100%{transform:translateY(0);box-shadow:0 12px 40px rgba(212,0,107,0.35)} 50%{transform:translateY(-6px);box-shadow:0 20px 50px rgba(212,0,107,0.25)} }
+.logo-mark svg { width:50px; height:50px; }
+.logo-mark::after { content:''; position:absolute; bottom:-4px; right:-4px; width:22px; height:22px; border-radius:50%; background:var(--teal); border:3px solid white; }
+.logo-name { font-family:'Playfair Display',serif; font-size:42px; font-weight:900; color:var(--black); letter-spacing:-1px; line-height:1; }
+.logo-name em { font-style:italic; color:var(--mag); }
+.logo-by { font-size:12px; color:var(--muted); letter-spacing:2px; text-transform:uppercase; margin-top:6px; font-weight:500; }
+.logo-by span { color:var(--teal); font-weight:700; }
+
+.actions { display:flex; flex-direction:column; gap:13px; width:100%; max-width:360px; }
+.btn { display:flex; align-items:center; gap:14px; padding:17px 22px; border-radius:var(--radius); border:none; font-family:'DM Sans',sans-serif; font-size:16px; font-weight:600; cursor:pointer; transition:transform 0.13s; text-align:left; }
+.btn:active { transform:scale(0.96); }
+.btn .btn-icon { font-size:24px; flex-shrink:0; }
+.btn .btn-text { flex:1; }
+.btn .btn-text small { display:block; font-size:11px; font-weight:400; opacity:0.65; margin-top:1px; }
+.btn-mag { background:linear-gradient(135deg,var(--mag),var(--mag2)); color:white; box-shadow:0 6px 24px rgba(212,0,107,0.3); }
+.btn-teal { background:linear-gradient(135deg,var(--teal),var(--teal2)); color:white; box-shadow:0 6px 24px rgba(0,180,180,0.25); }
+.btn-outline { background:white; color:var(--black); border:2px solid var(--gray2); box-shadow:0 2px 8px rgba(0,0,0,0.06); }
+.btn-qr { background:var(--black); color:white; box-shadow:0 6px 20px rgba(0,0,0,0.18); }
+.divider { display:flex; align-items:center; gap:12px; width:100%; max-width:360px; margin:2px 0; }
+.divider::before,.divider::after { content:''; flex:1; height:1px; background:var(--gray2); }
+.divider span { font-size:11px; color:var(--muted); letter-spacing:1px; white-space:nowrap; }
+
+#canvas-screen { background:#000; }
+#video-bg { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+#trace-img { position:absolute; inset:0; width:100%; height:100%; object-fit:contain; transform-origin:center center; pointer-events:none; }
+.grid-layer { position:absolute; inset:0; pointer-events:none; z-index:10; opacity:0; transition:opacity 0.3s; background-image:linear-gradient(rgba(0,180,180,0.15) 1px,transparent 1px),linear-gradient(90deg,rgba(0,180,180,0.15) 1px,transparent 1px); background-size:60px 60px; }
+.grid-layer.on { opacity:1; }
+#invert-overlay { position:absolute; inset:0; background:white; mix-blend-mode:difference; pointer-events:none; opacity:0; z-index:15; }
+#invert-overlay.on { opacity:1; }
+
+.top-bar { position:absolute; top:0; left:0; right:0; display:flex; align-items:center; justify-content:space-between; padding:12px 14px; padding-top:max(env(safe-area-inset-top,12px),12px); background:linear-gradient(to bottom,rgba(0,0,0,0.72),transparent); z-index:20; gap:8px; }
+.ic-btn { width:44px; height:44px; border-radius:12px; background:rgba(255,255,255,0.14); backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px); border:1.5px solid rgba(255,255,255,0.15); display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:19px; flex-shrink:0; transition:transform 0.1s; }
+.ic-btn:active { transform:scale(0.88); }
+.ic-btn.on { background:var(--mag); border-color:var(--mag); }
+.ic-btn.on-teal { background:var(--teal); border-color:var(--teal); }
+.cam-label { font-family:'Playfair Display',serif; font-size:15px; font-weight:700; color:white; letter-spacing:0.5px; flex:1; text-align:center; pointer-events:none; }
+.cam-label em { color:var(--mag2); font-style:italic; }
+
+.bottom-panel { position:absolute; bottom:0; left:0; right:0; background:linear-gradient(to top,rgba(0,0,0,0.92) 65%,transparent); padding:12px 18px; padding-bottom:max(env(safe-area-inset-bottom,14px),14px); z-index:20; }
+
+.slider-row { display:flex; align-items:center; gap:10px; margin-bottom:12px; }
+.slider-emoji { font-size:17px; width:26px; text-align:center; flex-shrink:0; }
+.slider-wrap { flex:1; height:44px; display:flex; align-items:center; position:relative; touch-action:none; cursor:pointer; }
+.slider-track { width:100%; height:5px; background:rgba(255,255,255,0.2); border-radius:5px; position:relative; }
+.slider-fill { height:100%; border-radius:5px; }
+.fill-mag { background:linear-gradient(to right,var(--mag),var(--mag2)); }
+.fill-teal { background:linear-gradient(to right,var(--teal),var(--teal2)); }
+.fill-white { background:linear-gradient(to right,rgba(255,255,255,0.6),white); }
+.slider-thumb { width:28px; height:28px; border-radius:50%; position:absolute; top:50%; transform:translate(-50%,-50%); pointer-events:none; border:2.5px solid white; box-shadow:0 2px 10px rgba(0,0,0,0.4); }
+.thumb-mag { background:var(--mag); }
+.thumb-teal { background:var(--teal); }
+.thumb-white { background:white; }
+.slider-lbl { font-size:11px; font-weight:600; color:rgba(255,255,255,0.8); width:36px; text-align:right; flex-shrink:0; }
+
+.quick-row { display:flex; gap:7px; }
+.qbtn { flex:1; padding:10px 4px; border-radius:11px; background:rgba(255,255,255,0.1); border:1.5px solid rgba(255,255,255,0.12); color:rgba(255,255,255,0.9); font-family:'DM Sans',sans-serif; font-size:11px; font-weight:600; cursor:pointer; text-align:center; white-space:nowrap; transition:transform 0.1s; }
+.qbtn:active { transform:scale(0.91); }
+.qbtn.on { background:rgba(212,0,107,0.3); border-color:var(--mag); color:var(--mag2); }
+.qbtn.on-teal { background:rgba(0,180,180,0.25); border-color:var(--teal); color:var(--teal2); }
+
+.no-img-hint { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; z-index:5; pointer-events:none; }
+.hint-ring { width:110px; height:110px; border-radius:50%; border:2px dashed rgba(212,0,107,0.5); display:flex; align-items:center; justify-content:center; font-size:42px; animation:spin-slow 10s linear infinite; }
+@keyframes spin-slow { to{transform:rotate(360deg)} }
+.hint-txt { font-size:12px; color:rgba(255,255,255,0.4); letter-spacing:1.5px; text-transform:uppercase; font-weight:500; }
+
+#img-only-screen { background:#000; }
+#static-img { position:absolute; inset:0; width:100%; height:100%; object-fit:contain; }
+
+.toast { position:fixed; top:50%; left:50%; transform:translate(-50%,-50%) scale(0.82); background:white; border-left:4px solid var(--mag); color:var(--black); padding:12px 22px; border-radius:50px; font-size:13px; font-weight:600; box-shadow:0 8px 30px rgba(0,0,0,0.18); pointer-events:none; opacity:0; transition:opacity 0.22s,transform 0.22s; z-index:999; white-space:nowrap; }
+.toast.show { opacity:1; transform:translate(-50%,-50%) scale(1); }
+
+.modal-bg { position:fixed; inset:0; background:rgba(0,0,0,0.55); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); z-index:200; opacity:0; pointer-events:none; transition:opacity 0.3s; display:flex; align-items:flex-end; }
+.modal-bg.show { opacity:1; pointer-events:all; }
+.modal-sheet { width:100%; background:white; border-radius:28px 28px 0 0; padding:32px 28px; padding-bottom:max(env(safe-area-inset-bottom,28px),28px); transform:translateY(100%); transition:transform 0.38s cubic-bezier(0.32,1.4,0.58,1); }
+.modal-bg.show .modal-sheet { transform:translateY(0); }
+.modal-pill { width:44px; height:5px; border-radius:5px; background:var(--gray2); margin:0 auto 24px; }
+.modal-title { font-family:'Playfair Display',serif; font-size:26px; font-weight:900; color:var(--black); margin-bottom:6px; }
+.modal-title span { color:var(--mag); }
+.modal-sub { font-size:13px; color:var(--muted); margin-bottom:28px; line-height:1.6; }
+.qr-container { display:flex; justify-content:center; margin-bottom:24px; }
+#qr-code { padding:16px; background:white; border-radius:16px; border:2px solid var(--gray2); box-shadow:0 4px 20px rgba(0,0,0,0.08); }
+#qr-code img,#qr-code canvas { display:block; border-radius:8px; }
+.qr-url { text-align:center; font-size:12px; color:var(--muted); word-break:break-all; margin-bottom:20px; padding:10px 14px; background:var(--gray); border-radius:10px; font-family:monospace; }
+.steps-title { font-size:13px; font-weight:700; color:var(--black); margin-bottom:12px; letter-spacing:0.5px; }
+.steps { display:flex; flex-direction:column; gap:10px; margin-bottom:24px; }
+.step { display:flex; align-items:flex-start; gap:12px; padding:12px 14px; border-radius:14px; background:var(--gray); }
+.step-num { width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; color:white; flex-shrink:0; }
+.step-num.mag { background:var(--mag); }
+.step-num.teal { background:var(--teal); }
+.step-num.black { background:var(--black); }
+.step-text { font-size:13px; line-height:1.5; color:var(--black); }
+.step-text strong { font-weight:700; }
+.btn-close-modal { width:100%; padding:16px; border-radius:14px; background:var(--black); color:white; border:none; font-family:'DM Sans',sans-serif; font-size:16px; font-weight:700; cursor:pointer; transition:transform 0.1s; }
+.btn-close-modal:active { transform:scale(0.97); }
+
+#install-modal .modal-sheet { background:var(--black); color:white; }
+#install-modal .modal-title { color:white; }
+#install-modal .modal-title span { color:var(--teal2); }
+#install-modal .modal-sub { color:rgba(255,255,255,0.55); }
+#install-modal .modal-pill { background:rgba(255,255,255,0.2); }
+#install-modal .step { background:rgba(255,255,255,0.07); }
+#install-modal .step-text { color:rgba(255,255,255,0.85); }
+#install-modal .btn-close-modal { background:var(--mag); }
+#install-modal .steps-title { color:rgba(255,255,255,0.9); }
+</style>
+</head>
+<body>
+
+<div id="home" class="screen">
+  <span class="brand-badge">ArtyVinos</span>
+  <div class="logo-area">
+    <div class="logo-mark">
+      <svg viewBox="0 0 50 50" fill="none"><path d="M10 40L24 12L38 40" stroke="white" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 30L33 30" stroke="white" stroke-width="3.5" stroke-linecap="round"/><circle cx="24" cy="24" r="5.5" stroke="white" stroke-width="2.5" fill="none"/><path d="M32 16L36 12L40 16L36 20Z" fill="white" opacity="0.85"/></svg>
+    </div>
+    <div class="logo-name">Arty<em>Copy</em></div>
+    <div class="logo-by">by <span>ArtyVinos</span></div>
+  </div>
+  <div class="actions">
+    <button class="btn btn-mag" onclick="startCamera()">
+      <span class="btn-icon">📷</span>
+      <span class="btn-text">Cámara + imagen<small>Calca con la cámara en vivo</small></span>
+    </button>
+    <button class="btn btn-teal" onclick="startStatic()">
+      <span class="btn-icon">🖼️</span>
+      <span class="btn-text">Solo imagen<small>Sin cámara, fondo negro</small></span>
+    </button>
+    <div class="divider"><span>más opciones</span></div>
+    <button class="btn btn-outline" onclick="pickFile('file-home')">
+      <span class="btn-icon">📁</span>
+      <span class="btn-text">Elegir del carrete<small>Abre una foto guardada</small></span>
+    </button>
+    <button class="btn btn-qr" onclick="openQR()">
+      <span class="btn-icon">📲</span>
+      <span class="btn-text">Compartir ArtyCopy<small>QR para instalar en más móviles</small></span>
+    </button>
+  </div>
+  <input type="file" id="file-home" accept="image/*" style="display:none" onchange="handleFile(event,'cam')">
+</div>
+
+<div id="canvas-screen" class="screen hidden">
+  <video id="video-bg" autoplay playsinline muted></video>
+  <div class="grid-layer" id="grid-layer"></div>
+  <div id="invert-overlay"></div>
+  <img id="trace-img" src="" style="opacity:0.5;display:none">
+  <div class="no-img-hint" id="no-img-hint">
+    <div class="hint-ring">🖼️</div>
+    <div class="hint-txt">Pulsa 📁 para cargar imagen</div>
+  </div>
+  <div class="top-bar">
+    <button class="ic-btn" onclick="goHome()">🏠</button>
+    <div class="cam-label">Arty<em>Copy</em></div>
+    <button class="ic-btn" onclick="pickFile('file-cam')">📁</button>
+    <button class="ic-btn" onclick="flipCam()">🔄</button>
+    <button class="ic-btn" id="btn-grid" onclick="toggle('grid')">⊞</button>
+    <button class="ic-btn" id="btn-lock" onclick="toggle('lock')">🔓</button>
+    <button class="ic-btn" id="btn-inv" onclick="toggle('inv')">🔆</button>
+  </div>
+  <input type="file" id="file-cam" accept="image/*" style="display:none" onchange="handleFile(event,'cam')">
+  <div class="bottom-panel">
+    <div class="slider-row">
+      <span class="slider-emoji">👁</span>
+      <div class="slider-wrap" id="sl-op" data-min="0" data-max="100" data-val="50">
+        <div class="slider-track"><div class="slider-fill fill-mag" style="width:50%"></div><div class="slider-thumb thumb-mag" style="left:50%"></div></div>
+      </div>
+      <span class="slider-lbl" id="lbl-op">50%</span>
+    </div>
+    <div class="slider-row">
+      <span class="slider-emoji">⤡</span>
+      <div class="slider-wrap" id="sl-sc" data-min="20" data-max="300" data-val="100">
+        <div class="slider-track"><div class="slider-fill fill-teal" style="width:28.5%"></div><div class="slider-thumb thumb-teal" style="left:28.5%"></div></div>
+      </div>
+      <span class="slider-lbl" id="lbl-sc">100%</span>
+    </div>
+    <div class="slider-row">
+      <span class="slider-emoji">↻</span>
+      <div class="slider-wrap" id="sl-rot" data-min="-180" data-max="180" data-val="0">
+        <div class="slider-track"><div class="slider-fill fill-white" style="width:50%"></div><div class="slider-thumb thumb-white" style="left:50%"></div></div>
+      </div>
+      <span class="slider-lbl" id="lbl-rot">0°</span>
+    </div>
+    <div class="quick-row">
+      <button class="qbtn" onclick="resetAll()">↺ Reset</button>
+      <button class="qbtn" id="qbtn-mir" onclick="toggle('mir')">⇄ Espejo</button>
+      <button class="qbtn" id="qbtn-frz" onclick="toggle('frz')">⏸ Congelar</button>
+      <button class="qbtn" onclick="cycleOp()">👁 0/50/100</button>
+    </div>
+  </div>
+</div>
+
+<div id="img-only-screen" class="screen hidden">
+  <img id="static-img" src="" style="opacity:0.6">
+  <div class="grid-layer" id="grid-layer-s"></div>
+  <div class="top-bar">
+    <button class="ic-btn" onclick="goHome()">🏠</button>
+    <div class="cam-label">Arty<em>Copy</em></div>
+    <button class="ic-btn" onclick="pickFile('file-st')">📁</button>
+    <button class="ic-btn" id="btn-grid-s" onclick="toggleS('grid')">⊞</button>
+    <button class="ic-btn" id="btn-mir-s" onclick="toggleS('mir')">⇄</button>
+    <button class="ic-btn" id="btn-inv-s" onclick="toggleS('inv')">🔆</button>
+  </div>
+  <input type="file" id="file-st" accept="image/*" style="display:none" onchange="handleFile(event,'st')">
+  <div class="bottom-panel">
+    <div class="slider-row">
+      <span class="slider-emoji">👁</span>
+      <div class="slider-wrap" id="sl-sop" data-min="0" data-max="100" data-val="60">
+        <div class="slider-track"><div class="slider-fill fill-mag" style="width:60%"></div><div class="slider-thumb thumb-mag" style="left:60%"></div></div>
+      </div>
+      <span class="slider-lbl" id="lbl-sop">60%</span>
+    </div>
+    <div class="slider-row">
+      <span class="slider-emoji">⤡</span>
+      <div class="slider-wrap" id="sl-ssc" data-min="20" data-max="300" data-val="100">
+        <div class="slider-track"><div class="slider-fill fill-teal" style="width:28.5%"></div><div class="slider-thumb thumb-teal" style="left:28.5%"></div></div>
+      </div>
+      <span class="slider-lbl" id="lbl-ssc">100%</span>
+    </div>
+    <div class="slider-row">
+      <span class="slider-emoji">↻</span>
+      <div class="slider-wrap" id="sl-srot" data-min="-180" data-max="180" data-val="0">
+        <div class="slider-track"><div class="slider-fill fill-white" style="width:50%"></div><div class="slider-thumb thumb-white" style="left:50%"></div></div>
+      </div>
+      <span class="slider-lbl" id="lbl-srot">0°</span>
+    </div>
+    <div class="quick-row">
+      <button class="qbtn" onclick="resetStatic()">↺ Reset</button>
+      <button class="qbtn" onclick="cycleOpS()">👁 0/60/100</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="qr-modal" onclick="closeModal('qr-modal')">
+  <div class="modal-sheet" onclick="event.stopPropagation()">
+    <div class="modal-pill"></div>
+    <div class="modal-title">Comparte <span>ArtyCopy</span></div>
+    <div class="modal-sub">Escanea el QR con cualquier móvil para abrir la app directamente.</div>
+    <div class="qr-container"><div id="qr-code"></div></div>
+    <div class="qr-url" id="qr-url-text">Sube la app a internet para generar el QR</div>
+    <div class="steps-title">📱 CÓMO INSTALARLA EN EL MÓVIL</div>
+    <div class="steps">
+      <div class="step"><div class="step-num mag">1</div><div class="step-text"><strong>iPhone (Safari):</strong> Abre el enlace → pulsa Compartir ⎙ → "Añadir a pantalla de inicio"</div></div>
+      <div class="step"><div class="step-num teal">2</div><div class="step-text"><strong>Android (Chrome):</strong> Abre el enlace → pulsa ⋮ → "Añadir a pantalla de inicio"</div></div>
+      <div class="step"><div class="step-num black">3</div><div class="step-text"><strong>¡Listo!</strong> ArtyCopy aparece como app nativa sin App Store.</div></div>
+    </div>
+    <button class="btn-close-modal" onclick="closeModal('qr-modal')">Cerrar</button>
+  </div>
+</div>
+
+<div class="modal-bg" id="install-modal" onclick="closeModal('install-modal')">
+  <div class="modal-sheet" onclick="event.stopPropagation()">
+    <div class="modal-pill"></div>
+    <div class="modal-title">Instala <span>ArtyCopy</span></div>
+    <div class="modal-sub">Agrégala a tu pantalla de inicio para usarla como app nativa.</div>
+    <div class="steps-title">PASOS SENCILLOS</div>
+    <div class="steps">
+      <div class="step"><div class="step-num mag">iPhone</div><div class="step-text">Pulsa <strong>Compartir ⎙</strong> en Safari → <strong>"Añadir a pantalla de inicio"</strong> → Confirmar</div></div>
+      <div class="step"><div class="step-num teal">Android</div><div class="step-text">Pulsa <strong>⋮</strong> en Chrome → <strong>"Instalar app"</strong> o <strong>"Añadir a pantalla de inicio"</strong></div></div>
+    </div>
+    <button class="btn-close-modal" onclick="closeModal('install-modal')">Entendido</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let stream=null,facing='environment';
+let imgX=0,imgY=0,imgScale=1,imgRot=0,imgMirror=false;
+let locked=false,frozen=false,inverted=false,gridOn=false;
+let drag=false,dsx=0,dsy=0,dbx=0,dby=0,pinchD=0;
+let opCyc=[50,100,0],opIdx=0;
+let sMirror=false,sGridOn=false,sInverted=false,sScale=1,sRot=0;
+
+let tT;
+function toast(m){const e=document.getElementById('toast');e.textContent=m;e.classList.add('show');clearTimeout(tT);tT=setTimeout(()=>e.classList.remove('show'),1700);}
+
+function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden'));document.getElementById(id).classList.remove('hidden');}
+function goHome(){stopCam();showScreen('home');}
+function startCamera(){showScreen('canvas-screen');initCam();}
+function startStatic(){showScreen('img-only-screen');toast('🖼️ Modo imagen');}
+
+async function initCam(){
+  stopCam();
+  try{
+    stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:facing,width:{ideal:1920},height:{ideal:1080}}});
+    const v=document.getElementById('video-bg');v.srcObject=stream;v.play();
+    frozen=false;updateFrzBtn();toast('📷 Cámara activada');
+  }catch(e){toast('❌ Sin acceso a cámara');}
+}
+function stopCam(){if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;}}
+function flipCam(){facing=facing==='environment'?'user':'environment';initCam();toast(facing==='user'?'🤳 Frontal':'📷 Trasera');}
+function updateFrzBtn(){const b=document.getElementById('qbtn-frz');b.classList.toggle('on',frozen);b.textContent=frozen?'▶ Reanudar':'⏸ Congelar';}
+
+function pickFile(id){document.getElementById(id).click();}
+function handleFile(e,target){
+  const file=e.target.files[0];if(!file)return;
+  const r=new FileReader();
+  r.onload=ev=>{
+    if(target==='cam'){
+      if(document.getElementById('canvas-screen').classList.contains('hidden')){startCamera();}
+      const img=document.getElementById('trace-img');
+      img.src=ev.target.result;img.style.display='block';
+      document.getElementById('no-img-hint').style.display='none';
+      resetAll(true);toast('✅ Imagen cargada');
+    }else{
+      document.getElementById('static-img').src=ev.target.result;
+      toast('✅ Imagen cargada');
+    }
+  };
+  r.readAsDataURL(file);e.target.value='';
+}
+
+function applyT(){const img=document.getElementById('trace-img');const m=imgMirror?-1:1;img.style.transform=`translate(${imgX}px,${imgY}px) scale(${imgScale*m},${imgScale}) rotate(${imgRot}deg)`;}
+function applyTs(){const img=document.getElementById('static-img');const m=sMirror?-1:1;img.style.transform=`scale(${sScale*m},${sScale}) rotate(${sRot}deg)`;}
+
+function resetAll(silent){imgX=0;imgY=0;imgScale=1;imgRot=0;imgMirror=false;setSlider('sl-op',50);setSlider('sl-sc',100);setSlider('sl-rot',0);document.getElementById('qbtn-mir').classList.remove('on');applyT();if(!silent)toast('↺ Reseteado');}
+function resetStatic(){sScale=1;sRot=0;sMirror=false;setSlider('sl-sop',60);setSlider('sl-ssc',100);setSlider('sl-srot',0);document.getElementById('static-img').style.opacity='0.6';applyTs();toast('↺ Reseteado');}
+function cycleOp(){opIdx=(opIdx+1)%opCyc.length;const v=opCyc[opIdx];setSlider('sl-op',v);document.getElementById('trace-img').style.opacity=v/100;toast('👁 '+v+'%');}
+function cycleOpS(){const c=[60,100,0];opIdx=(opIdx+1)%c.length;const v=c[opIdx];setSlider('sl-sop',v);document.getElementById('static-img').style.opacity=v/100;toast('👁 '+v+'%');}
+
+function toggle(w){
+  if(w==='grid'){gridOn=!gridOn;document.getElementById('grid-layer').classList.toggle('on',gridOn);document.getElementById('btn-grid').classList.toggle('on',gridOn);toast(gridOn?'⊞ Cuadrícula ON':'⊞ OFF');}
+  else if(w==='lock'){locked=!locked;const b=document.getElementById('btn-lock');b.textContent=locked?'🔒':'🔓';b.classList.toggle('on',locked);toast(locked?'🔒 Bloqueada':'🔓 Libre');}
+  else if(w==='inv'){inverted=!inverted;document.getElementById('invert-overlay').classList.toggle('on',inverted);document.getElementById('btn-inv').classList.toggle('on',inverted);toast(inverted?'🔆 Invertido':'🔅 Normal');}
+  else if(w==='mir'){imgMirror=!imgMirror;document.getElementById('qbtn-mir').classList.toggle('on',imgMirror);applyT();toast(imgMirror?'⇄ Espejo ON':'⇄ OFF');}
+  else if(w==='frz'){frozen=!frozen;const v=document.getElementById('video-bg');frozen?v.pause():v.play();updateFrzBtn();toast(frozen?'⏸ Congelada':'▶ En vivo');}
+}
+function toggleS(w){
+  if(w==='grid'){sGridOn=!sGridOn;document.getElementById('grid-layer-s').classList.toggle('on',sGridOn);document.getElementById('btn-grid-s').classList.toggle('on-teal',sGridOn);}
+  else if(w==='mir'){sMirror=!sMirror;document.getElementById('btn-mir-s').classList.toggle('on-teal',sMirror);applyTs();}
+  else if(w==='inv'){sInverted=!sInverted;document.getElementById('static-img').style.filter=sInverted?'invert(1)':'';document.getElementById('btn-inv-s').classList.toggle('on',sInverted);}
+}
+
+function openQR(){
+  const modal=document.getElementById('qr-modal');
+  modal.classList.add('show');
+  const url=window.location.href;
+  document.getElementById('qr-url-text').textContent=url;
+  const qrDiv=document.getElementById('qr-code');
+  qrDiv.innerHTML='';
+  try{new QRCode(qrDiv,{text:url,width:200,height:200,colorDark:'#111111',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.H});}
+  catch(e){qrDiv.innerHTML='<p style="font-size:12px;color:#888;padding:20px;text-align:center">Sube la app a internet<br>para activar el QR</p>';}
+}
+function closeModal(id){document.getElementById(id).classList.remove('show');}
+
+function setSlider(id,val){
+  const el=document.getElementById(id);
+  const min=parseFloat(el.dataset.min),max=parseFloat(el.dataset.max);
+  val=Math.min(max,Math.max(min,parseFloat(val)));
+  el.dataset.val=val;
+  const pct=(val-min)/(max-min)*100;
+  el.querySelector('.slider-fill').style.width=pct+'%';
+  el.querySelector('.slider-thumb').style.left=pct+'%';
+}
+function getVal(id,clientX){
+  const el=document.getElementById(id);
+  const rect=el.querySelector('.slider-track').getBoundingClientRect();
+  const min=parseFloat(el.dataset.min),max=parseFloat(el.dataset.max);
+  return min+(max-min)*Math.min(1,Math.max(0,(clientX-rect.left)/rect.width));
+}
+function applyVal(id,raw){
+  const v=Math.round(raw);setSlider(id,v);
+  if(id==='sl-op'){document.getElementById('trace-img').style.opacity=v/100;document.getElementById('lbl-op').textContent=v+'%';}
+  else if(id==='sl-sc'){imgScale=v/100;document.getElementById('lbl-sc').textContent=v+'%';applyT();}
+  else if(id==='sl-rot'){imgRot=v;document.getElementById('lbl-rot').textContent=v+'°';applyT();}
+  else if(id==='sl-sop'){document.getElementById('static-img').style.opacity=v/100;document.getElementById('lbl-sop').textContent=v+'%';}
+  else if(id==='sl-ssc'){sScale=v/100;document.getElementById('lbl-ssc').textContent=v+'%';applyTs();}
+  else if(id==='sl-srot'){sRot=v;document.getElementById('lbl-srot').textContent=v+'°';applyTs();}
+}
+function bindSlider(id){
+  const el=document.getElementById(id);let active=false;
+  el.addEventListener('touchstart',function(e){active=true;applyVal(id,getVal(id,e.touches[0].clientX));e.stopPropagation();e.preventDefault();},{passive:false});
+  el.addEventListener('touchmove',function(e){if(!active)return;applyVal(id,getVal(id,e.touches[0].clientX));e.stopPropagation();e.preventDefault();},{passive:false});
+  el.addEventListener('touchend',function(e){active=false;e.stopPropagation();},{passive:true});
+  el.addEventListener('mousedown',function(e){active=true;applyVal(id,getVal(id,e.clientX));e.stopPropagation();});
+  window.addEventListener('mousemove',function(e){if(active)applyVal(id,getVal(id,e.clientX));});
+  window.addEventListener('mouseup',function(){active=false;});
+}
+
+function setupDrag(){
+  const scr=document.getElementById('canvas-screen');
+  scr.addEventListener('touchstart',function(e){
+    if(e.target.closest('.bottom-panel')||e.target.closest('.top-bar'))return;
+    if(e.touches.length===1&&!locked){drag=true;dsx=e.touches[0].clientX;dsy=e.touches[0].clientY;dbx=imgX;dby=imgY;}
+    if(e.touches.length===2){drag=false;pinchD=Math.hypot(e.touches[1].clientX-e.touches[0].clientX,e.touches[1].clientY-e.touches[0].clientY);}
+  },{passive:true});
+  scr.addEventListener('touchmove',function(e){
+    if(e.target.closest('.bottom-panel')||e.target.closest('.top-bar'))return;
+    if(e.touches.length===1&&drag&&!locked){imgX=dbx+(e.touches[0].clientX-dsx);imgY=dby+(e.touches[0].clientY-dsy);applyT();}
+    if(e.touches.length===2&&!locked){const d=Math.hypot(e.touches[1].clientX-e.touches[0].clientX,e.touches[1].clientY-e.touches[0].clientY);imgScale=Math.max(0.2,Math.min(4,imgScale*(d/pinchD)));const v=Math.round(imgScale*100);setSlider('sl-sc',v);document.getElementById('lbl-sc').textContent=v+'%';applyT();pinchD=d;}
+  },{passive:true});
+  scr.addEventListener('touchend',function(){drag=false;},{passive:true});
+  scr.addEventListener('mousedown',function(e){if(e.target.closest('.bottom-panel')||e.target.closest('.top-bar'))return;if(!locked){drag=true;dsx=e.clientX;dsy=e.clientY;dbx=imgX;dby=imgY;}});
+  window.addEventListener('mousemove',function(e){if(drag&&!locked){imgX=dbx+(e.clientX-dsx);imgY=dby+(e.clientY-dsy);applyT();}});
+  window.addEventListener('mouseup',function(){drag=false;});
+}
+
+window.addEventListener('load',function(){
+  ['sl-op','sl-sc','sl-rot','sl-sop','sl-ssc','sl-srot'].forEach(bindSlider);
+  setupDrag();
+  showScreen('home');
+  if(!localStorage.getItem('ac-shown')){
+    setTimeout(()=>{document.getElementById('install-modal').classList.add('show');localStorage.setItem('ac-shown','1');},3000);
+  }
+});
+document.addEventListener('visibilitychange',function(){if(document.hidden)stopCam();});
+</script>
