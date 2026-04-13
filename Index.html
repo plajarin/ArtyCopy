@@ -501,194 +501,380 @@ html, body {
 #install-modal .steps-title { color: rgba(255,255,255,0.9); }
 
 
+
 /* ════════════════════════════════
-   ANÁLISIS DE OBRA - PANTALLA
+   TU ARTE NO MIENTE — TAROT UX
    ════════════════════════════════ */
-#analisis-screen {
-  background: linear-gradient(160deg, #1a0a14 0%, #0a1a1a 100%);
+
+/* TANM ENTRY SCREEN */
+#tanm-entry {
+  background: white;
+  align-items: center; justify-content: center;
+  padding: 0 28px;
+  overflow: hidden;
+}
+#tanm-entry::before {
+  content: '';
+  position: absolute; top: -100px; left: -100px;
+  width: 350px; height: 350px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(212,0,107,0.08), transparent 70%);
+  pointer-events: none;
+}
+#tanm-entry::after {
+  content: '';
+  position: absolute; bottom: -80px; right: -80px;
+  width: 300px; height: 300px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(0,180,180,0.08), transparent 70%);
+  pointer-events: none;
+}
+.tanm-entry-top {
+  position: absolute; top: 0; left: 0; right: 0;
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 16px;
+  padding-top: max(env(safe-area-inset-top,14px),14px);
+}
+.tanm-hero-icon {
+  font-size: 72px;
+  animation: tanm-float 3s ease-in-out infinite;
+  display: block; text-align: center; margin-bottom: 20px;
+}
+@keyframes tanm-float {
+  0%,100%{transform:translateY(0) rotate(-3deg)}
+  50%{transform:translateY(-10px) rotate(3deg)}
+}
+.tanm-entry-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 32px; font-weight: 900;
+  color: var(--black); text-align: center;
+  line-height: 1.1; margin-bottom: 10px;
+}
+.tanm-entry-title em { color: var(--mag); font-style: italic; }
+.tanm-entry-sub {
+  font-size: 15px; color: var(--muted);
+  text-align: center; line-height: 1.7;
+  margin-bottom: 36px; padding: 0 10px;
+}
+.tanm-steps {
+  display: flex; gap: 12px; margin-bottom: 36px;
+  width: 100%;
+}
+.tanm-step {
+  flex: 1; padding: 16px 12px;
+  background: var(--gray);
+  border-radius: 16px; text-align: center;
+  border: 2px solid transparent;
+  transition: border-color 0.2s;
+}
+.tanm-step-num {
+  width: 28px; height: 28px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 800; color: white;
+  margin: 0 auto 8px;
+}
+.tanm-step-num.mag { background: var(--mag); }
+.tanm-step-num.teal { background: var(--teal); }
+.tanm-step-emoji { font-size: 22px; margin-bottom: 6px; }
+.tanm-step-txt { font-size: 11px; color: var(--black); font-weight: 600; line-height: 1.4; }
+
+.btn-tanm-start {
+  width: 100%;
+  padding: 18px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, var(--mag), var(--mag2));
+  color: white; border: none;
+  font-family: 'Playfair Display', serif;
+  font-size: 20px; font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 8px 28px rgba(212,0,107,0.35);
+  transition: transform 0.1s;
+  display: flex; align-items: center; justify-content: center; gap: 12px;
+}
+.btn-tanm-start:active { transform: scale(0.97); }
+
+/* TANM CAMERA SCREEN */
+#tanm-camera {
+  background: #000;
+}
+#tanm-video {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%; object-fit: cover;
+}
+.tanm-cam-frame {
+  position: absolute; inset: 30px;
+  border: 2px dashed rgba(212,0,107,0.6);
+  border-radius: 20px;
+  pointer-events: none; z-index: 5;
+  animation: frame-pulse 2s ease-in-out infinite;
+}
+@keyframes frame-pulse {
+  0%,100%{border-color:rgba(212,0,107,0.4)}
+  50%{border-color:rgba(212,0,107,0.9)}
+}
+.tanm-cam-hint {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center; z-index: 6; pointer-events: none;
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(8px);
+  padding: 12px 20px; border-radius: 14px;
+}
+.tanm-cam-hint-txt {
+  font-size: 13px; color: rgba(255,255,255,0.85);
+  font-weight: 600; line-height: 1.5;
+}
+.tanm-cam-hint.hidden { display: none; }
+.tanm-top-bar {
+  position: absolute; top: 0; left: 0; right: 0;
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 16px;
+  padding-top: max(env(safe-area-inset-top,12px),12px);
+  background: linear-gradient(to bottom, rgba(0,0,0,0.7), transparent);
+  z-index: 10;
+}
+.tanm-title-bar {
+  font-family: 'Playfair Display', serif;
+  font-size: 16px; font-weight: 700; color: white; flex: 1; text-align: center;
+}
+.tanm-title-bar em { color: var(--mag2); }
+.tanm-capture-btn {
+  position: absolute;
+  bottom: 50px; left: 50%; transform: translateX(-50%);
+  width: 80px; height: 80px; border-radius: 50%;
+  background: white; border: none;
+  cursor: pointer; z-index: 10;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 0 0 6px rgba(255,255,255,0.3), 0 8px 24px rgba(0,0,0,0.4);
+  transition: transform 0.1s;
+}
+.tanm-capture-btn:active { transform: translateX(-50%) scale(0.92); }
+.tanm-capture-inner {
+  width: 64px; height: 64px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--mag), var(--mag2));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px;
+}
+.tanm-cam-bottom {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  padding-bottom: max(env(safe-area-inset-bottom,20px),20px);
+  display: flex; align-items: center; justify-content: center;
+  padding-top: 20px;
+  background: linear-gradient(to top, rgba(0,0,0,0.6), transparent);
+  z-index: 10;
+}
+.tanm-flip-btn {
+  position: absolute; right: 28px; bottom: 58px;
+  width: 46px; height: 46px; border-radius: 50%;
+  background: rgba(255,255,255,0.15);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.2);
+  font-size: 20px; cursor: pointer; z-index: 10;
+  display: flex; align-items: center; justify-content: center;
+}
+
+/* TANM LOADING */
+#tanm-loading {
+  background: white;
+  align-items: center; justify-content: center;
+}
+.tanm-loading-content {
+  display: flex; flex-direction: column;
+  align-items: center; gap: 20px;
+  padding: 40px 32px; text-align: center;
+}
+.tanm-loading-cards {
+  display: flex; gap: -10px; margin-bottom: 10px;
+}
+.tarot-card-loading {
+  width: 60px; height: 90px; border-radius: 10px;
+  background: linear-gradient(135deg, var(--mag), var(--teal));
+  border: 2px solid white;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 24px;
+  animation: card-flip 1.8s ease-in-out infinite;
+}
+.tarot-card-loading:nth-child(2) { animation-delay: 0.3s; transform: rotate(5deg); }
+.tarot-card-loading:nth-child(3) { animation-delay: 0.6s; transform: rotate(-5deg); }
+@keyframes card-flip {
+  0%,100%{transform:translateY(0) rotate(var(--r,0deg))}
+  50%{transform:translateY(-15px) rotate(var(--r,0deg))}
+}
+.tanm-loading-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 24px; font-weight: 900; color: var(--black);
+}
+.tanm-loading-title em { color: var(--mag); }
+.tanm-loading-msgs { font-size: 14px; color: var(--muted); line-height: 1.8; }
+.tanm-loading-bar {
+  width: 200px; height: 4px;
+  background: var(--gray2); border-radius: 4px; overflow: hidden;
+}
+.tanm-loading-progress {
+  height: 100%;
+  background: linear-gradient(to right, var(--mag), var(--teal));
+  border-radius: 4px;
+  animation: progress-anim 3s ease-in-out infinite;
+}
+@keyframes progress-anim {
+  0%{width:5%} 50%{width:80%} 100%{width:95%}
+}
+
+/* TANM RESULT */
+#tanm-result {
+  background: white;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   touch-action: pan-y;
 }
-
-.analisis-top {
-  display: flex; align-items: center; gap: 12px;
-  padding: 16px;
-  padding-top: max(env(safe-area-inset-top,16px),16px);
-  background: rgba(0,0,0,0.3);
+.tanm-result-top {
   position: sticky; top: 0; z-index: 10;
-  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  background: white;
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 16px;
+  padding-top: max(env(safe-area-inset-top,12px),12px);
+  border-bottom: 1px solid var(--gray2);
 }
-.analisis-top-title {
+.tanm-result-title {
   font-family: 'Playfair Display', serif;
-  font-size: 18px; font-weight: 900; color: white; flex: 1;
+  font-size: 17px; font-weight: 900; color: var(--black); flex: 1; text-align: center;
 }
-.analisis-top-title em { color: var(--mag2); font-style: italic; }
+.tanm-result-title em { color: var(--mag); }
 
-.analisis-hero {
-  padding: 24px 20px 0;
-  display: flex; flex-direction: column; align-items: center; gap: 16px;
-}
-
-.obra-preview {
-  width: 100%; max-width: 340px;
-  aspect-ratio: 1;
-  border-radius: 20px;
-  overflow: hidden;
-  border: 3px solid rgba(212,0,107,0.4);
-  box-shadow: 0 0 40px rgba(212,0,107,0.2), 0 0 80px rgba(0,180,180,0.1);
+/* Obra foto */
+.tanm-obra-wrap {
+  margin: 20px;
+  border-radius: 20px; overflow: hidden;
   position: relative;
+  box-shadow: 0 8px 32px rgba(212,0,107,0.15);
+  border: 3px solid transparent;
+  background: linear-gradient(white,white) padding-box,
+              linear-gradient(135deg,var(--mag),var(--teal)) border-box;
 }
-.obra-preview img {
-  width: 100%; height: 100%; object-fit: cover;
+.tanm-obra-foto {
+  width: 100%; aspect-ratio: 4/3;
+  object-fit: cover; display: block;
 }
-.obra-badge {
-  position: absolute; bottom: 12px; right: 12px;
-  background: rgba(0,0,0,0.6);
-  backdrop-filter: blur(8px);
-  border-radius: 20px; padding: 5px 12px;
-  font-size: 11px; color: rgba(255,255,255,0.8);
-  font-weight: 600; letter-spacing: 1px;
-}
-
-/* LOADING STATE */
-.analisis-loading {
-  display: flex; flex-direction: column; align-items: center;
-  gap: 16px; padding: 40px 20px; text-align: center;
-}
-.loading-ring {
-  width: 64px; height: 64px;
-  border-radius: 50%;
-  border: 3px solid rgba(212,0,107,0.2);
-  border-top-color: var(--mag);
-  animation: spin-ring 1s linear infinite;
-}
-@keyframes spin-ring { to { transform: rotate(360deg); } }
-.loading-text {
-  font-size: 16px; color: rgba(255,255,255,0.7);
-  font-style: italic;
-}
-.loading-sub {
-  font-size: 12px; color: rgba(255,255,255,0.35);
-  font-family: 'DM Sans', monospace;
+.tanm-obra-label {
+  position: absolute; bottom: 12px; left: 12px;
+  background: var(--mag);
+  color: white; font-size: 10px; font-weight: 800;
+  letter-spacing: 2px; padding: 4px 12px; border-radius: 20px;
 }
 
-/* RESULT CARD */
-.result-card {
-  margin: 20px; padding: 28px 24px;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(212,0,107,0.25);
-  border-radius: 24px;
-  backdrop-filter: blur(10px);
-  display: none;
+/* Tarot titulo */
+.tanm-titulo-wrap {
+  text-align: center; padding: 0 24px 20px;
 }
-.result-card.show { display: block; }
-
-.result-titulo {
+.tanm-obra-titulo {
   font-family: 'Playfair Display', serif;
-  font-size: 22px; font-weight: 900;
-  color: white; margin-bottom: 6px; line-height: 1.2;
+  font-size: 26px; font-weight: 900; color: var(--black);
+  line-height: 1.2; margin-bottom: 6px;
 }
-.result-titulo em { color: var(--mag2); font-style: italic; }
-
-.result-subtitulo {
-  font-size: 12px; color: var(--teal2);
-  letter-spacing: 2px; text-transform: uppercase;
-  font-weight: 700; margin-bottom: 20px;
+.tanm-obra-titulo em { color: var(--mag); font-style: italic; }
+.tanm-obra-estilo {
+  display: inline-block;
+  background: linear-gradient(135deg, var(--teal), var(--teal2));
+  color: white; font-size: 10px; font-weight: 800;
+  letter-spacing: 2px; padding: 5px 14px; border-radius: 20px;
 }
 
-.result-seccion {
+/* Tarot cards */
+.tanm-cards {
+  padding: 0 16px; display: flex; flex-direction: column; gap: 14px;
   margin-bottom: 20px;
-  padding: 16px;
-  border-radius: 16px;
-  background: rgba(255,255,255,0.04);
-  border-left: 3px solid var(--mag);
 }
-.result-seccion.teal { border-left-color: var(--teal); }
-.result-seccion.white { border-left-color: rgba(255,255,255,0.4); }
+.tanm-card {
+  border-radius: 20px; padding: 20px;
+  position: relative; overflow: hidden;
+}
+.tanm-card-mag {
+  background: linear-gradient(135deg, rgba(212,0,107,0.06), rgba(255,26,133,0.03));
+  border: 1.5px solid rgba(212,0,107,0.2);
+}
+.tanm-card-teal {
+  background: linear-gradient(135deg, rgba(0,180,180,0.06), rgba(0,212,212,0.03));
+  border: 1.5px solid rgba(0,180,180,0.2);
+}
+.tanm-card-dark {
+  background: linear-gradient(135deg, #111, #1a1a1a);
+  border: 1.5px solid rgba(255,255,255,0.1);
+  color: white;
+}
+.tanm-card-header {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 12px;
+}
+.tanm-card-icon {
+  width: 36px; height: 36px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; flex-shrink: 0;
+}
+.icon-mag { background: linear-gradient(135deg, var(--mag), var(--mag2)); }
+.icon-teal { background: linear-gradient(135deg, var(--teal), var(--teal2)); }
+.icon-dark { background: rgba(255,255,255,0.1); }
+.tanm-card-label {
+  font-size: 10px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase;
+}
+.tanm-card-mag .tanm-card-label { color: var(--mag); }
+.tanm-card-teal .tanm-card-label { color: var(--teal); }
+.tanm-card-dark .tanm-card-label { color: rgba(255,255,255,0.5); }
+.tanm-card-body {
+  font-size: 14px; line-height: 1.8; color: var(--black);
+}
+.tanm-card-dark .tanm-card-body { color: rgba(255,255,255,0.85); }
 
-.result-seccion-titulo {
-  font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
-  color: var(--mag2); font-weight: 700; margin-bottom: 8px;
+/* Mensaje especial */
+.tanm-mensaje {
+  margin: 0 16px 20px;
+  padding: 24px;
+  background: linear-gradient(135deg, var(--mag), var(--teal));
+  border-radius: 20px; text-align: center;
+  color: white;
 }
-.result-seccion.teal .result-seccion-titulo { color: var(--teal2); }
-.result-seccion.white .result-seccion-titulo { color: rgba(255,255,255,0.5); }
-
-.result-seccion-texto {
-  font-size: 14px; line-height: 1.7;
-  color: rgba(255,255,255,0.85);
+.tanm-mensaje-icon { font-size: 32px; margin-bottom: 10px; }
+.tanm-mensaje-label {
+  font-size: 10px; font-weight: 800; letter-spacing: 2px;
+  opacity: 0.8; margin-bottom: 10px; text-transform: uppercase;
 }
-
-.result-hashtags {
-  display: flex; flex-wrap: wrap; gap: 8px;
-  margin-top: 8px;
-}
-.hashtag {
-  padding: 5px 12px; border-radius: 20px;
-  background: rgba(212,0,107,0.15);
-  border: 1px solid rgba(212,0,107,0.3);
-  font-size: 12px; color: var(--mag2); font-weight: 600;
+.tanm-mensaje-txt {
+  font-family: 'Playfair Display', serif;
+  font-size: 18px; font-weight: 700; line-height: 1.5; font-style: italic;
 }
 
-/* ACTION BUTTONS */
-.result-actions {
+/* Hashtags */
+.tanm-hashtags {
+  padding: 0 16px; display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px;
+}
+.tanm-tag {
+  padding: 6px 14px; border-radius: 20px;
+  background: var(--gray); border: 1.5px solid var(--gray2);
+  font-size: 12px; font-weight: 600; color: var(--black);
+}
+
+/* Action buttons */
+.tanm-actions {
+  padding: 0 16px;
   display: flex; flex-direction: column; gap: 10px;
-  margin: 0 20px 40px;
+  margin-bottom: 40px;
 }
-.btn-save-ig {
+.btn-ig {
   display: flex; align-items: center; justify-content: center; gap: 10px;
-  padding: 16px; border-radius: 14px;
+  padding: 16px; border-radius: 16px;
   background: linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045);
   color: white; border: none;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 16px; font-weight: 700;
+  font-family: 'DM Sans', sans-serif; font-size: 16px; font-weight: 700;
   cursor: pointer; transition: transform 0.1s;
 }
-.btn-save-ig:active { transform: scale(0.97); }
-.btn-nueva {
+.btn-ig:active { transform: scale(0.97); }
+.btn-repetir {
   display: flex; align-items: center; justify-content: center; gap: 10px;
-  padding: 16px; border-radius: 14px;
-  background: rgba(255,255,255,0.08);
-  border: 1.5px solid rgba(255,255,255,0.15);
-  color: rgba(255,255,255,0.8);
-  font-family: 'DM Sans', sans-serif;
-  font-size: 15px; font-weight: 600;
+  padding: 15px; border-radius: 16px;
+  background: white; color: var(--black);
+  border: 2px solid var(--gray2);
+  font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 600;
   cursor: pointer; transition: transform 0.1s;
 }
-.btn-nueva:active { transform: scale(0.97); }
+.btn-repetir:active { transform: scale(0.97); }
 
-/* CAPTURE BUTTON ON CAMERA */
-.capture-fab {
-  position: absolute;
-  bottom: 200px; right: 20px;
-  width: 56px; height: 56px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--mag), var(--mag2));
-  border: none; cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 24px;
-  box-shadow: 0 4px 20px rgba(212,0,107,0.5);
-  z-index: 20;
-  transition: transform 0.1s;
-  animation: pulse-fab 2.5s ease-in-out infinite;
-}
-.capture-fab:active { transform: scale(0.92); }
-@keyframes pulse-fab {
-  0%,100%{box-shadow:0 4px 20px rgba(212,0,107,0.5)}
-  50%{box-shadow:0 4px 35px rgba(212,0,107,0.8)}
-}
-
-/* INSTAGRAM CARD (off-screen canvas render) */
-#ig-card {
-  position: fixed;
-  left: -9999px; top: -9999px;
-  width: 1080px; height: 1080px;
-  background: linear-gradient(160deg, #1a0a14 0%, #0a1a1a 100%);
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  padding: 60px; font-family: 'DM Sans', sans-serif;
-  overflow: hidden;
-}
 
 </style>
 <script>
@@ -1181,366 +1367,468 @@ window.addEventListener('load',function(){
   }
 });
 
-// ══════ ANÁLISIS DE OBRA ══════
-let obraImageData = null;
 
-function capturarObra() {
-  // Capture current camera frame + overlay into canvas
-  const video = document.getElementById('video-bg');
-  const traceImg = document.getElementById('trace-img');
-  
-  const canvas = document.createElement('canvas');
-  canvas.width = video.videoWidth || 1280;
-  canvas.height = video.videoHeight || 720;
-  const ctx = canvas.getContext('2d');
-  
-  // Draw video frame
-  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-  
-  obraImageData = canvas.toDataURL('image/jpeg', 0.9);
-  
-  // Show analysis screen
-  document.getElementById('obra-img').src = obraImageData;
-  document.getElementById('analisis-loading').style.display = 'flex';
-  document.getElementById('result-card').classList.remove('show');
-  document.getElementById('result-actions').style.display = 'none';
-  
-  showScreen('analisis-screen');
-  analizarObra(obraImageData);
-}
-
-// ══════ PANEL TOGGLE ══════
-let panelOpen = false;
-let panelOpenS = false;
-
-function togglePanel() {
-  panelOpen = !panelOpen;
-  document.getElementById('bottom-panel').classList.toggle('open', panelOpen);
-  document.getElementById('panel-toggle').classList.toggle('open', panelOpen);
-  document.getElementById('panel-toggle').textContent = panelOpen ? '✕' : '⚙️';
-  document.getElementById('mini-indicators').classList.toggle('hidden', panelOpen);
-}
-
-function togglePanelS() {
-  panelOpenS = !panelOpenS;
-  document.getElementById('bottom-panel-s').classList.toggle('open', panelOpenS);
-  document.getElementById('panel-toggle-s').classList.toggle('open', panelOpenS);
-  document.getElementById('panel-toggle-s').textContent = panelOpenS ? '✕' : '⚙️';
-}
-
-// Update mini indicators when sliders change
-const origApplyVal = applyVal;
-function applyVal(id, raw) {
-  const v = Math.round(raw);
-  if(id==='sl-op' && document.getElementById('mini-op')) document.getElementById('mini-op').textContent = v+'%';
-  if(id==='sl-sc' && document.getElementById('mini-sc')) document.getElementById('mini-sc').textContent = v+'%';
-  if(id==='sl-rot' && document.getElementById('mini-rot')) document.getElementById('mini-rot').textContent = v+'°';
-  // Call original logic inline
-  setSlider(id,v);
-  if(id==='sl-op'){document.getElementById('trace-img').style.opacity=v/100;document.getElementById('lbl-op').textContent=v+'%';}
-  else if(id==='sl-sc'){imgScale=v/100;document.getElementById('lbl-sc').textContent=v+'%';applyT();}
-  else if(id==='sl-rot'){imgRot=v;document.getElementById('lbl-rot').textContent=v+'°';applyT();}
-  else if(id==='sl-sop'){document.getElementById('static-img').style.opacity=v/100;document.getElementById('lbl-sop').textContent=v+'%';}
-  else if(id==='sl-ssc'){sScale=v/100;document.getElementById('lbl-ssc').textContent=v+'%';applyTs();}
-  else if(id==='sl-srot'){sRot=v;document.getElementById('lbl-srot').textContent=v+'°';applyTs();}
-}
-
-// Close panel when navigating away
-const origGoHome = goHome;
-function goHome() { panelOpen=false; panelOpenS=false; stopCam(); showScreen('home'); }
+// ══════ TU ARTE NO MIENTE ══════
+let tanmStream = null;
+let tanmFacing = 'environment';
+let tanmImageData = null;
+let tanmLoadingMsgs = [
+  'Analizando colores y emociones...',
+  'Estudiando la composición...',
+  'Detectando tu energía creativa...',
+  'Revelando tu personalidad artística...',
+  'Preparando tu lectura de arte...'
+];
+let tanmMsgIdx = 0;
+let tanmMsgInterval = null;
 
 function abrirTANM() {
-  startCamera();
-  setTimeout(()=>{ toast('📷 Carga imagen y pulsa 🔮 para analizar'); }, 1200);
+  showScreen('tanm-entry');
 }
 
-function retomar() {
-  showScreen('canvas-screen');
+function abrirTanmCamara() {
+  showScreen('tanm-camera');
+  iniciarTanmCam();
 }
 
-async function analizarObra(imageData) {
-  try {
-    const base64 = imageData.split(',')[1];
-    
-    // ── GEMINI API KEY ── Pega tu key aquí ──
-    const GEMINI_KEY = 'TU_API_KEY_AQUI';
-    
-    // Add a random seed to force unique responses each time
-    const seed = Math.random().toString(36).substring(7);
-    
-    const prompt = `Eres el Dr. Arturo Vinos, el psicólogo del arte más perspicaz del mundo. Trabajas en ArtyVinos, donde grupos de amigas pintan y beben vino. Tu análisis es TAN preciso que la gente se queda sin palabras. Seed de sesión: ${seed} (usa esto para garantizar que cada análisis es completamente único).
+function cerrarTanmCamara() {
+  pararTanmCam();
+  showScreen('tanm-entry');
+}
 
-MIRA LA IMAGEN CON ATENCIÓN EXTREMA y responde estas preguntas mentalmente antes de escribir:
-- ¿Qué colores EXACTOS ves? ¿Son cálidos, fríos, saturados, suaves?
-- ¿Los trazos son gruesos o finos? ¿Seguros o titubeantes? ¿Rápidos o detallados?
-- ¿Llena todo el lienzo o deja espacios? ¿Dónde está el foco?
-- ¿Hay orden o caos? ¿Mezcla de colores o zonas diferenciadas?
-- ¿Qué forma, figura o tema se pinta?
-
-DICCIONARIO PSICOLÓGICO DEL ARTE (usa esto para el análisis):
-COLORES:
-- Rojo/Naranja intenso → pasión, liderazgo, no pasa desapercibida, le gusta ser el centro
-- Azul/Verde → profundidad emocional, intuición poderosa, amiga leal hasta la muerte  
-- Amarillo/Dorado → optimismo contagioso, energía solar, ilumina cualquier grupo
-- Morado/Violeta → creatividad desbordante, alma vieja, intuición casi sobrenatural
-- Rosa/Fucsia → corazón gigante, da más de lo que recibe, magnética socialmente
-- Colores oscuros+intensos → intensidad emocional, apasionada, todo o nada
-- Colores suaves/pasteles → empatía fuera de lo normal, siente lo que otros no ven
-- Muchos colores juntos → no cabe en una sola definición, rompe esquemas siempre
-
-TRAZOS:
-- Largos y fluidos → confianza en sí misma, fluye con la vida, presencia magnética
-- Cortos y repetidos → mente brillante y analítica, memoria prodigiosa, nada se le escapa
-- Gruesos y decididos → toma decisiones sin mirar atrás, líder natural
-- Finos y delicados → observadora nata, ve lo que otros ignoran, muy selectiva con su círculo
-- Mezcla dinámica → adaptable a cualquier situación, siempre encuentra solución
-
-COMPOSICIÓN:
-- Llena todo el lienzo → generosa sin límites, da el 200% en todo lo que hace
-- Centro bien definido → sabe exactamente lo que quiere, foco de acero
-- Composición libre/caótica → mente no convencional, las reglas son para los aburridos
-- Equilibrada → paz interior trabajada, sabe gestionar sus emociones mejor que nadie
-- Asimétrica → en medio de un cambio importante, algo grande se está gestando
-
-REGLAS ABSOLUTAS:
-1. Menciona AL MENOS 3 elementos visuales ESPECÍFICOS y CONCRETOS del cuadro (colores reales, formas reales, trazos reales que VES)
-2. NUNCA uses frases genéricas como "tu obra refleja creatividad" o "los colores son vibrantes"
-3. Cada análisis debe ser TAN específico que solo funcione para ESE cuadro
-4. Haz que suene como una revelación, no como un horóscopo genérico
-5. Usa el nombre "tú" directamente, habla a la persona
-6. El tono es: amiga muy lista + psicóloga + un punto de humor cómplice
-
-Responde ÚNICAMENTE con JSON válido, sin markdown, sin explicaciones extra:
-{
-  "titulo": "Título poético muy específico para ESTA obra (máx 6 palabras, que suene a Museo del Prado)",
-  "subtitulo": "3 PALABRAS EN MAYÚSCULAS que definan exactamente el estilo de ESTE cuadro",
-  "estilo": "Describe el estilo mencionando colores EXACTOS y elementos CONCRETOS que ves. 3 frases que demuestren que analizaste ESTE cuadro y no otro. Cita algo específico: 'El trazo grueso en la zona derecha...', 'Ese azul que domina el centro...', etc.",
-  "emociones": "Qué emociones transmite ESTA obra. Conecta algo visual concreto con la emoción: 'Esa mancha de rojo en la esquina superior no es casualidad...' 3 frases reveladoras que la hagan decir exactamente lo que sentía mientras pintaba.",
-  "personalidad": "4 rasgos de personalidad MUY específicos, cada uno justificado con algo visual concreto del cuadro. Que suene a que la conoces de toda la vida. Que sea sorprendentemente certero.",
-  "mensaje": "Un mensaje poderoso, poético y personal del universo. 2 frases que quiera guardar en su móvil para siempre.",
-  "hashtags": ["PintaConArtyVinos", "TuArteNoMiente", "DrArturoVinos", y 3 hashtags únicos e inventados específicos para ESTA obra]
-}`;
-
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${GEMINI_KEY}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{
-            parts: [
-              { inline_data: { mime_type: 'image/jpeg', data: base64 } },
-              { text: prompt }
-            ]
-          }],
-          generationConfig: { temperature: 0.8, maxOutputTokens: 1000 }
-        })
-      }
-    );
-
-    const data = await response.json();
-    const text = data.candidates[0].content.parts[0].text;
-    
-    // Parse JSON response
-    const clean = text.replace(/```json|```/g, '').trim();
-    const result = JSON.parse(clean);
-    
-    mostrarResultado(result);
-    
-  } catch(e) {
-    console.error('Analysis error:', e);
-    // Show friendly error
-    document.getElementById('analisis-loading').style.display = 'none';
-    document.getElementById('result-card').classList.add('show');
-    document.getElementById('res-titulo').textContent = '¡Obra analizada! 🎨';
-    document.getElementById('res-subtitulo').textContent = 'ARTE ÚNICO';
-    document.getElementById('res-estilo').textContent = 'Tu obra es única e irrepetible, llena de personalidad y expresión.';
-    document.getElementById('res-emociones').textContent = 'Se siente una energía creativa poderosa y auténtica en cada trazo.';
-    document.getElementById('res-personalidad').textContent = 'Eres una persona con una visión artística especial y un alma creativa.';
-    document.getElementById('res-mensaje').textContent = '¡El arte vive en ti! 🌟';
-    document.getElementById('result-actions').style.display = 'flex';
+async function iniciarTanmCam() {
+  pararTanmCam();
+  const constraints = [
+    {video:{facingMode:{ideal:tanmFacing},width:{ideal:1280},height:{ideal:960}}},
+    {video:{facingMode:{ideal:tanmFacing}}},
+    {video:true}
+  ];
+  for(const c of constraints){
+    try{
+      tanmStream = await navigator.mediaDevices.getUserMedia(c);
+      break;
+    }catch(e){}
+  }
+  if(tanmStream){
+    const v = document.getElementById('tanm-video');
+    v.srcObject = tanmStream;
+    v.play();
+    // Hide hint after 3s
+    setTimeout(()=>{
+      const h = document.getElementById('tanm-hint');
+      if(h) h.classList.add('hidden');
+    }, 3000);
+  } else {
+    toast('❌ Sin acceso a cámara. Revisa permisos.');
+    showScreen('tanm-entry');
   }
 }
 
-function mostrarResultado(result) {
-  document.getElementById('analisis-loading').style.display = 'none';
-  
-  document.getElementById('res-titulo').innerHTML = result.titulo;
-  document.getElementById('res-subtitulo').textContent = result.subtitulo;
-  document.getElementById('res-estilo').textContent = result.estilo;
-  document.getElementById('res-emociones').textContent = result.emociones;
-  document.getElementById('res-personalidad').textContent = result.personalidad;
-  document.getElementById('res-mensaje').textContent = result.mensaje;
-  
-  // Hashtags
-  const hashDiv = document.getElementById('res-hashtags');
+function pararTanmCam() {
+  if(tanmStream){ tanmStream.getTracks().forEach(t=>t.stop()); tanmStream=null; }
+}
+
+function flipTanmCam() {
+  tanmFacing = tanmFacing==='environment'?'user':'environment';
+  iniciarTanmCam();
+}
+
+function capturarTanm() {
+  const video = document.getElementById('tanm-video');
+  const canvas = document.getElementById('tanm-canvas');
+  canvas.width = video.videoWidth || 1280;
+  canvas.height = video.videoHeight || 960;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+  tanmImageData = canvas.toDataURL('image/jpeg', 0.92);
+
+  pararTanmCam();
+
+  // Show obra foto
+  document.getElementById('tanm-obra-foto').src = tanmImageData;
+
+  // Show loading
+  showScreen('tanm-loading');
+  tanmMsgIdx = 0;
+  document.getElementById('tanm-loading-msg').textContent = tanmLoadingMsgs[0];
+  tanmMsgInterval = setInterval(()=>{
+    tanmMsgIdx = (tanmMsgIdx+1) % tanmLoadingMsgs.length;
+    document.getElementById('tanm-loading-msg').textContent = tanmLoadingMsgs[tanmMsgIdx];
+  }, 2000);
+
+  analizarConClaude(tanmImageData);
+}
+
+async function analizarConClaude(imageData) {
+  const base64 = imageData.split(',')[1];
+  const GEMINI_KEY = 'TU_API_KEY_AQUI';
+  const seed = Math.random().toString(36).substring(7);
+
+  const prompt = `Eres el Dr. Arturo Vinos, el psicólogo del arte más perspicaz y entretenido del mundo. Trabajas en ArtyVinos, una experiencia de pintura con vino para grupos de amigas. Tu análisis es TAN preciso que la gente dice "¡pero cómo lo sabe!". Seed único: ${seed}.
+
+ANALIZA ESTA IMAGEN CON MÁXIMO DETALLE:
+
+Primero observa mentalmente:
+- ¿Qué colores EXACTOS domina? ¿Son cálidos, fríos, saturados o suaves?
+- ¿Los trazos son gruesos/finos? ¿Decididos o titubeantes? ¿Hay capas?
+- ¿Cómo ocupa el espacio? ¿Llena todo o hay vacíos?
+- ¿Qué forma o tema principal ves?
+- ¿Hay contraste o armonía?
+
+TABLA PSICOLÓGICA OBLIGATORIA (usa esto para el análisis):
+Rojo/Naranja intenso → líder natural, apasionada, no pasa desapercibida
+Azul/Verde → profunda, intuitiva, leal como pocas
+Amarillo/Dorado → optimismo solar, energía que se contagia
+Morado/Violeta → alma vieja, creatividad casi sobrenatural
+Rosa/Fucsia → corazón enorme, da más de lo que recibe
+Colores oscuros → intensidad emocional, todo o nada en la vida
+Pasteles → empatía excepcional, siente lo que otros no ven
+Trazos gruesos y seguros → toma decisiones sin mirar atrás
+Trazos finos y detallados → nada se le escapa, observadora nata
+Llena todo el lienzo → generosa sin límites, da el 200% siempre
+Composición centrada → sabe lo que quiere, foco de acero
+Caos creativo → mente no convencional, las reglas son para aburridas
+
+REGLAS ABSOLUTAS:
+1. Menciona MÍNIMO 3 elementos visuales concretos que VES (colores reales, formas, zona del lienzo)
+2. PROHIBIDO usar frases como "tu obra refleja creatividad" o "los colores son vibrantes" sin especificar
+3. Cada análisis único, que solo encaje con ESTA obra
+4. Habla directamente a la persona con "tú"
+5. Tono: amiga psicóloga muy lista + humor cómplice + emoción genuina
+
+Responde SOLO con JSON válido, sin markdown:
+{
+  "titulo": "Título para esta obra específica que suene a museo de arte moderno (máx 6 palabras)",
+  "subtitulo": "3 PALABRAS EN MAYÚSCULAS que describan exactamente este estilo",
+  "estilo": "3 frases describiendo lo que VES concretamente. Cita colores exactos, zonas del lienzo, tipo de trazo. Que demuestre que miraste ESTE cuadro.",
+  "emociones": "3 frases sobre las emociones que transmite. Conecta algo visual concreto con la emoción. Que haga decir 'exacto, así me sentía'.",
+  "personalidad": "4 rasgos de personalidad MUY específicos, cada uno justificado con algo visual del cuadro. Sorprendentemente certero.",
+  "mensaje": "2 frases poéticas y poderosas que quiera guardar para siempre. Del universo para ella.",
+  "hashtags": ["PintaConArtyVinos", "TuArteNoMiente", "ArtyVinos", y 3 hashtags únicos para ESTA obra específica]
+}`;
+
+  try {
+    // ── OPENAI GPT-4o API KEY ── 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 ──
+    const OPENAI_KEY = 'TU_API_KEY_AQUI';
+
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${OPENAI_KEY}`
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o',
+        max_tokens: 1500,
+        temperature: 1.0,
+        messages: [{
+          role: 'user',
+          content: [
+            {
+              type: 'image_url',
+              image_url: {
+                url: `data:image/jpeg;base64,${base64}`,
+                detail: 'high'
+              }
+            },
+            {
+              type: 'text',
+              text: prompt
+            }
+          ]
+        }]
+      })
+    });
+
+    if(!response.ok) {
+      const err = await response.json();
+      console.error('OpenAI error:', err);
+      throw new Error('API error ' + response.status);
+    }
+    const data = await response.json();
+    const text = data.choices[0].message.content;
+    const clean = text.replace(/```json|```/g,'').trim();
+    const result = JSON.parse(clean);
+    mostrarResultadoTanm(result);
+
+  } catch(e) {
+    console.error('TANM error:', e);
+    clearInterval(tanmMsgInterval);
+    // Fallback graceful
+    mostrarResultadoTanm({
+      titulo: "El Arte Habla Por Ti",
+      subtitulo: "EXPRESIÓN AUTÉNTICA ÚNICA",
+      estilo: "Tu obra tiene una energía visual muy personal. Los colores y trazos que elegiste son exactamente los que tu instinto pidió, y eso es arte puro.",
+      emociones: "Se siente libertad y presencia en cada pincelada. Pintaste con el corazón, y eso siempre se nota.",
+      personalidad: "Eres de las que hacen las cosas a su manera y tienen razón. Tu forma de abordar el lienzo dice mucho de cómo afrontas la vida: sin miedo y con estilo propio.",
+      mensaje: "Tu arte no necesita explicación. Habla directamente al alma de quien lo mira. ✨",
+      hashtags: ["PintaConArtyVinos", "TuArteNoMiente", "ArtyVinos", "MiObraHabla", "ArteSinFiltros"]
+    });
+  }
+}
+
+function mostrarResultadoTanm(result) {
+  clearInterval(tanmMsgInterval);
+
+  document.getElementById('tanm-titulo').innerHTML = result.titulo;
+  document.getElementById('tanm-estilo-badge').textContent = result.subtitulo;
+  document.getElementById('tanm-estilo').textContent = result.estilo;
+  document.getElementById('tanm-emociones').textContent = result.emociones;
+  document.getElementById('tanm-personalidad').textContent = result.personalidad;
+  document.getElementById('tanm-mensaje').textContent = result.mensaje;
+
+  const hashDiv = document.getElementById('tanm-hashtags');
   hashDiv.innerHTML = '';
   (result.hashtags || []).forEach(h => {
     const span = document.createElement('span');
-    span.className = 'hashtag';
+    span.className = 'tanm-tag';
     span.textContent = '#' + h.replace('#','');
     hashDiv.appendChild(span);
   });
-  
-  // Add ArtyVinos hashtags
-  ['ArtyVinos', 'ArtyCopy', 'PintaConNosotros'].forEach(h => {
-    const span = document.createElement('span');
-    span.className = 'hashtag';
-    span.textContent = '#' + h;
-    hashDiv.appendChild(span);
-  });
-  
-  document.getElementById('result-card').classList.add('show');
-  document.getElementById('result-actions').style.display = 'flex';
+
+  showScreen('tanm-result');
+  // Scroll to top
+  document.getElementById('tanm-result').scrollTop = 0;
 }
 
-async function guardarInstagram() {
+async function guardarIG() {
   try {
-    // Dynamically load html2canvas if not loaded
-    if (!window.html2canvas) {
-      await new Promise((resolve, reject) => {
-        const s = document.createElement('script');
-        s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
-        s.onload = resolve; s.onerror = reject;
+    if(!window.html2canvas){
+      await new Promise((res,rej)=>{
+        const s=document.createElement('script');
+        s.src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+        s.onload=res; s.onerror=rej;
         document.head.appendChild(s);
       });
     }
-    
-    toast('📸 Preparando imagen...');
-    
-    // Build Instagram card
+    toast('📸 Preparando imagen para Instagram...');
+    const titulo = document.getElementById('tanm-titulo').textContent;
+    const estilo = document.getElementById('tanm-estilo').textContent;
+    const emociones = document.getElementById('tanm-emociones').textContent;
+    const personalidad = document.getElementById('tanm-personalidad').textContent;
+    const mensaje = document.getElementById('tanm-mensaje').textContent;
+
     const igCard = document.getElementById('ig-card');
-    const titulo = document.getElementById('res-titulo').textContent;
-    const estilo = document.getElementById('res-estilo').textContent;
-    const emociones = document.getElementById('res-emociones').textContent;
-    const personalidad = document.getElementById('res-personalidad').textContent;
-    const mensaje = document.getElementById('res-mensaje').textContent;
-    
-    igCard.style.cssText = `
-      position:fixed; left:-9999px; top:0;
-      width:1080px; height:1080px;
-      background:linear-gradient(160deg,#1a0a14 0%,#0a1a1a 100%);
-      display:flex; flex-direction:column;
-      padding:60px; font-family:sans-serif; overflow:hidden;
-      box-sizing:border-box;
-    `;
-    
+    igCard.style.cssText = 'position:fixed;left:-9999px;top:0;width:1080px;height:1080px;background:white;box-sizing:border-box;font-family:sans-serif;overflow:hidden;';
     igCard.innerHTML = `
-      <div style="display:flex;align-items:center;gap:20px;margin-bottom:30px">
-        <img src="${obraImageData}" style="width:280px;height:280px;object-fit:cover;border-radius:20px;border:3px solid rgba(212,0,107,0.5)">
-        <div style="flex:1">
-          <div style="font-size:13px;letter-spacing:3px;color:#00D4D4;font-weight:700;margin-bottom:10px">ANÁLISIS ARTÍSTICO · ARTYVINOS</div>
-          <div style="font-size:36px;font-weight:900;color:white;line-height:1.2;margin-bottom:12px">${titulo}</div>
-          <div style="font-size:15px;color:rgba(255,255,255,0.6);line-height:1.6">${estilo}</div>
+      <div style="width:100%;height:100%;background:linear-gradient(135deg,#fff 60%,rgba(212,0,107,0.05) 100%);padding:50px;display:flex;flex-direction:column;gap:24px;box-sizing:border-box;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+          <div style="font-size:14px;font-weight:800;letter-spacing:3px;color:#00B4B4">ARTYVINOS · TU ARTE NO MIENTE</div>
+          <div style="font-size:28px">🔮</div>
         </div>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;flex:1">
-        <div style="background:rgba(212,0,107,0.1);border:1px solid rgba(212,0,107,0.3);border-radius:16px;padding:20px">
-          <div style="font-size:11px;letter-spacing:2px;color:#FF1A85;font-weight:700;margin-bottom:8px">💜 EMOCIONES</div>
-          <div style="font-size:14px;color:rgba(255,255,255,0.85);line-height:1.6">${emociones}</div>
+        <div style="display:flex;gap:30px;flex:1">
+          <img src="${tanmImageData}" style="width:380px;height:380px;object-fit:cover;border-radius:20px;border:4px solid #D4006B;flex-shrink:0">
+          <div style="flex:1;display:flex;flex-direction:column;gap:16px">
+            <div>
+              <div style="font-size:11px;letter-spacing:3px;color:#D4006B;font-weight:800;margin-bottom:6px">TU OBRA</div>
+              <div style="font-size:30px;font-weight:900;color:#111;line-height:1.2">${titulo}</div>
+            </div>
+            <div style="background:linear-gradient(135deg,rgba(212,0,107,0.08),rgba(0,180,180,0.05));border-radius:16px;padding:16px;border-left:4px solid #D4006B">
+              <div style="font-size:10px;letter-spacing:2px;color:#D4006B;font-weight:800;margin-bottom:8px">🎨 LO QUE VEO</div>
+              <div style="font-size:13px;color:#333;line-height:1.6">${estilo}</div>
+            </div>
+            <div style="background:linear-gradient(135deg,rgba(0,180,180,0.08),rgba(0,212,212,0.05));border-radius:16px;padding:16px;border-left:4px solid #00B4B4">
+              <div style="font-size:10px;letter-spacing:2px;color:#00B4B4;font-weight:800;margin-bottom:8px">✨ TU PERSONALIDAD</div>
+              <div style="font-size:13px;color:#333;line-height:1.6">${personalidad}</div>
+            </div>
+          </div>
         </div>
-        <div style="background:rgba(0,180,180,0.1);border:1px solid rgba(0,180,180,0.3);border-radius:16px;padding:20px">
-          <div style="font-size:11px;letter-spacing:2px;color:#00D4D4;font-weight:700;margin-bottom:8px">✨ PERSONALIDAD</div>
-          <div style="font-size:14px;color:rgba(255,255,255,0.85);line-height:1.6">${personalidad}</div>
+        <div style="background:linear-gradient(135deg,#D4006B,#00B4B4);border-radius:16px;padding:20px;text-align:center;color:white">
+          <div style="font-size:11px;letter-spacing:2px;opacity:0.8;margin-bottom:8px">🌟 EL UNIVERSO TE DICE</div>
+          <div style="font-size:17px;font-style:italic;font-weight:700;line-height:1.5">${mensaje}</div>
         </div>
-      </div>
-      <div style="margin-top:20px;padding:20px;background:rgba(255,255,255,0.04);border-radius:16px;border-left:4px solid #00D4D4">
-        <div style="font-size:11px;letter-spacing:2px;color:rgba(255,255,255,0.4);font-weight:700;margin-bottom:8px">🌟 MENSAJE</div>
-        <div style="font-size:16px;color:white;font-style:italic;line-height:1.6">${mensaje}</div>
-      </div>
-      <div style="margin-top:20px;display:flex;justify-content:space-between;align-items:center">
-        <div style="font-size:13px;color:rgba(255,255,255,0.3)">#ArtyVinos #ArtyCopy #PintaConNosotros</div>
-        <div style="font-size:13px;font-weight:700;color:var(--mag,#D4006B)">ArtyVinos 🍷</div>
-      </div>
-    `;
-    
-    const canvas = await html2canvas(igCard, {
-      width: 1080, height: 1080,
-      scale: 1, useCORS: true, allowTaint: true,
-      backgroundColor: '#1a0a14'
-    });
-    
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div style="font-size:12px;color:#aaa">#PintaConArtyVinos #TuArteNoMiente #ArtyVinos</div>
+          <div style="font-size:14px;font-weight:800;color:#D4006B">ArtyVinos 🍷</div>
+        </div>
+      </div>`;
+
+    const canvas = await html2canvas(igCard,{width:1080,height:1080,scale:1,useCORS:true,allowTaint:true,backgroundColor:'#ffffff'});
     const link = document.createElement('a');
-    link.download = 'ArtyCopy-ArtyVinos.jpg';
-    link.href = canvas.toDataURL('image/jpeg', 0.95);
+    link.download = 'TuArteNoMiente-ArtyVinos.jpg';
+    link.href = canvas.toDataURL('image/jpeg',0.95);
     link.click();
-    
-    toast('✅ ¡Imagen guardada! Ábrela en Fotos 📸');
-    
+    toast('✅ ¡Guardada! Ábrela en Fotos 📸');
   } catch(e) {
-    console.error('IG save error:', e);
-    toast('📸 Pulsa captura de pantalla para guardar');
+    console.error(e);
+    toast('📱 Haz una captura de pantalla para guardar');
   }
 }
 
 document.addEventListener('visibilitychange',function(){if(document.hidden)stopCam();});
 </script>
 
+
 <!-- ══════════════════════════════════════
-     ANÁLISIS DE OBRA SCREEN
+     TU ARTE NO MIENTE — ENTRY
 ══════════════════════════════════════ -->
-<div id="analisis-screen" class="screen hidden">
-
-  <div class="analisis-top">
-    <button class="ic-btn" onclick="goHome()" style="background:rgba(255,255,255,0.1)">🏠</button>
-    <div class="analisis-top-title">Arty<em>Copy</em> · Análisis</div>
-    <button class="ic-btn" onclick="retomar()" style="background:rgba(255,255,255,0.1)" title="Volver a la cámara">📷</button>
+<div id="tanm-entry" class="screen hidden">
+  <div class="tanm-entry-top">
+    <button class="ic-btn" onclick="showScreen('home')" style="background:rgba(0,0,0,0.08);border-color:var(--gray2)">🏠</button>
   </div>
 
-  <div class="analisis-hero">
-    <div class="obra-preview">
-      <img id="obra-img" src="" alt="Tu obra">
-      <div class="obra-badge">TU OBRA</div>
+  <span class="tanm-hero-icon">🔮</span>
+
+  <div class="tanm-entry-title">Tu Arte<br><em>No Miente</em></div>
+  <div class="tanm-entry-sub">
+    La IA analiza los colores, trazos y composición de tu cuadro para revelarte algo que quizás no sabías de ti misma.
+  </div>
+
+  <div class="tanm-steps">
+    <div class="tanm-step">
+      <div class="tanm-step-num mag">1</div>
+      <div class="tanm-step-emoji">🎨</div>
+      <div class="tanm-step-txt">Termina tu cuadro</div>
+    </div>
+    <div class="tanm-step">
+      <div class="tanm-step-num teal">2</div>
+      <div class="tanm-step-emoji">📸</div>
+      <div class="tanm-step-txt">Fotografíalo con la app</div>
+    </div>
+    <div class="tanm-step">
+      <div class="tanm-step-num mag">3</div>
+      <div class="tanm-step-emoji">✨</div>
+      <div class="tanm-step-txt">Descubre tu perfil artístico</div>
     </div>
   </div>
 
-  <!-- LOADING -->
-  <div class="analisis-loading" id="analisis-loading">
-    <div class="loading-ring"></div>
-    <div class="loading-text">Analizando tu obra de arte...</div>
-    <div class="loading-sub">Claude está descubriendo tu personalidad 🎨</div>
+  <button class="btn-tanm-start" onclick="abrirTanmCamara()">
+    📸 Fotografiar mi obra
+  </button>
+</div>
+
+
+<!-- ══════════════════════════════════════
+     TU ARTE NO MIENTE — CÁMARA
+══════════════════════════════════════ -->
+<div id="tanm-camera" class="screen hidden">
+  <video id="tanm-video" autoplay playsinline muted webkit-playsinline></video>
+
+  <div class="tanm-cam-frame"></div>
+
+  <div class="tanm-cam-hint" id="tanm-hint">
+    <div class="tanm-cam-hint-txt">📐 Encuadra tu cuadro completo<br>y pulsa el botón para fotografiarlo</div>
   </div>
 
-  <!-- RESULT -->
-  <div class="result-card" id="result-card">
-    <div class="result-subtitulo" id="res-subtitulo">ANÁLISIS ARTÍSTICO</div>
-    <div class="result-titulo" id="res-titulo">Tu obra habla por ti</div>
-
-    <div class="result-seccion" id="res-estilo-box">
-      <div class="result-seccion-titulo">🎨 ESTILO ARTÍSTICO</div>
-      <div class="result-seccion-texto" id="res-estilo"></div>
-    </div>
-
-    <div class="result-seccion teal" id="res-emociones-box">
-      <div class="result-seccion-titulo">💜 EMOCIONES & ENERGÍA</div>
-      <div class="result-seccion-texto" id="res-emociones"></div>
-    </div>
-
-    <div class="result-seccion white" id="res-personalidad-box">
-      <div class="result-seccion-titulo">✨ TU PERSONALIDAD</div>
-      <div class="result-seccion-texto" id="res-personalidad"></div>
-    </div>
-
-    <div class="result-seccion" style="border-left-color:var(--teal2)" id="res-mensaje-box">
-      <div class="result-seccion-titulo">🌟 MENSAJE DEL UNIVERSO</div>
-      <div class="result-seccion-texto" id="res-mensaje"></div>
-    </div>
-
-    <div class="result-hashtags" id="res-hashtags"></div>
+  <div class="tanm-top-bar">
+    <button class="ic-btn" onclick="cerrarTanmCamara()">✕</button>
+    <div class="tanm-title-bar">Tu Arte <em>No Miente</em></div>
+    <button class="ic-btn" onclick="flipTanmCam()">🔄</button>
   </div>
 
-  <div class="result-actions" id="result-actions" style="display:none">
-    <button class="btn-save-ig" onclick="guardarInstagram()">
-      📸 Guardar para Instagram
-    </button>
-    <button class="btn-nueva" onclick="retomar()">
-      🎨 Analizar otra obra
-    </button>
+  <button class="tanm-capture-btn" onclick="capturarTanm()">
+    <div class="tanm-capture-inner">🔮</div>
+  </button>
+
+  <button class="tanm-flip-btn" onclick="flipTanmCam()">🔄</button>
+</div>
+
+
+<!-- ══════════════════════════════════════
+     TU ARTE NO MIENTE — LOADING
+══════════════════════════════════════ -->
+<div id="tanm-loading" class="screen hidden">
+  <div class="tanm-loading-content">
+    <div class="tanm-loading-cards">
+      <div class="tarot-card-loading" style="--r:-8deg">🎨</div>
+      <div class="tarot-card-loading" style="--r:0deg;margin:0 -8px;z-index:2">🔮</div>
+      <div class="tarot-card-loading" style="--r:8deg">✨</div>
+    </div>
+
+    <div class="tanm-loading-title">Leyendo<br><em>tu alma artística...</em></div>
+
+    <div class="tanm-loading-msgs" id="tanm-loading-msg">
+      Analizando colores y emociones...
+    </div>
+
+    <div class="tanm-loading-bar">
+      <div class="tanm-loading-progress"></div>
+    </div>
+
+    <div style="font-size:12px;color:var(--muted);margin-top:8px">
+      Esto puede tardar unos segundos ✨
+    </div>
   </div>
 </div>
 
-<!-- Instagram off-screen card -->
-<div id="ig-card"></div>
+
+<!-- ══════════════════════════════════════
+     TU ARTE NO MIENTE — RESULTADO
+══════════════════════════════════════ -->
+<div id="tanm-result" class="screen hidden">
+
+  <div class="tanm-result-top">
+    <button class="ic-btn" onclick="showScreen('home')" style="background:var(--gray);border-color:var(--gray2)">🏠</button>
+    <div class="tanm-result-title">Tu Arte <em>No Miente</em></div>
+    <button class="ic-btn" onclick="abrirTanmCamara()" style="background:var(--gray);border-color:var(--gray2)" title="Nueva foto">📸</button>
+  </div>
+
+  <!-- Foto de la obra -->
+  <div class="tanm-obra-wrap">
+    <img id="tanm-obra-foto" src="" class="tanm-obra-foto">
+    <div class="tanm-obra-label">TU OBRA</div>
+  </div>
+
+  <!-- Título de la obra -->
+  <div class="tanm-titulo-wrap">
+    <div class="tanm-obra-titulo" id="tanm-titulo">—</div>
+    <span class="tanm-obra-estilo" id="tanm-estilo-badge">—</span>
+  </div>
+
+  <!-- Cards de análisis -->
+  <div class="tanm-cards">
+    <div class="tanm-card tanm-card-mag">
+      <div class="tanm-card-header">
+        <div class="tanm-card-icon icon-mag">🎨</div>
+        <div class="tanm-card-label">Lo que veo en tu obra</div>
+      </div>
+      <div class="tanm-card-body" id="tanm-estilo">—</div>
+    </div>
+
+    <div class="tanm-card tanm-card-teal">
+      <div class="tanm-card-header">
+        <div class="tanm-card-icon icon-teal">💜</div>
+        <div class="tanm-card-label">Las emociones que transmite</div>
+      </div>
+      <div class="tanm-card-body" id="tanm-emociones">—</div>
+    </div>
+
+    <div class="tanm-card tanm-card-dark">
+      <div class="tanm-card-header">
+        <div class="tanm-card-icon icon-dark">🧠</div>
+        <div class="tanm-card-label">Tu personalidad artística</div>
+      </div>
+      <div class="tanm-card-body" id="tanm-personalidad">—</div>
+    </div>
+  </div>
+
+  <!-- Mensaje del universo -->
+  <div class="tanm-mensaje">
+    <div class="tanm-mensaje-icon">🌟</div>
+    <div class="tanm-mensaje-label">El universo te dice</div>
+    <div class="tanm-mensaje-txt" id="tanm-mensaje">—</div>
+  </div>
+
+  <!-- Hashtags -->
+  <div class="tanm-hashtags" id="tanm-hashtags"></div>
+
+  <!-- Acciones -->
+  <div class="tanm-actions">
+    <button class="btn-ig" onclick="guardarIG()">
+      📸 Guardar para Instagram
+    </button>
+    <button class="btn-repetir" onclick="abrirTanmCamara()">
+      🔮 Analizar otra obra
+    </button>
+  </div>
+
+</div>
+
+<!-- canvas oculto para captura -->
+<canvas id="tanm-canvas" style="display:none"></canvas>
+<!-- ig card oculta -->
+<div id="ig-card" style="position:fixed;left:-9999px;top:0;width:1080px;height:1080px"></div>
+
 
 </body>
 </html>
