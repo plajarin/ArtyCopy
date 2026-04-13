@@ -246,13 +246,71 @@ html, body {
 .cam-label em { color: var(--mag2); font-style: italic; }
 
 /* BOTTOM PANEL */
+/* COLLAPSIBLE CONTROL PANEL */
 .bottom-panel {
   position: absolute; bottom: 0; left: 0; right: 0;
-  background: linear-gradient(to top, rgba(0,0,0,0.92) 65%, transparent);
-  padding: 12px 18px;
+  background: rgba(0,0,0,0.88);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  padding: 14px 18px;
   padding-bottom: max(env(safe-area-inset-bottom, 14px), 14px);
   z-index: 20;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  border-radius: 20px 20px 0 0;
+  transform: translateY(100%);
+  transition: transform 0.35s cubic-bezier(0.32, 1.2, 0.58, 1);
 }
+.bottom-panel.open {
+  transform: translateY(0);
+}
+
+/* TOGGLE BUTTON */
+.panel-toggle {
+  position: absolute;
+  bottom: 20px; right: 20px;
+  width: 52px; height: 52px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.75);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  border: 1.5px solid rgba(255,255,255,0.2);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; font-size: 22px;
+  z-index: 21;
+  transition: transform 0.2s, background 0.2s;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+}
+.panel-toggle:active { transform: scale(0.9); }
+.panel-toggle.open {
+  background: var(--mag);
+  border-color: var(--mag);
+  transform: rotate(45deg);
+}
+
+/* Panel drag handle */
+.panel-handle {
+  width: 40px; height: 4px;
+  background: rgba(255,255,255,0.2);
+  border-radius: 4px;
+  margin: 0 auto 14px;
+}
+
+/* Mini indicators - show when panel is closed */
+.mini-indicators {
+  position: absolute;
+  bottom: 82px; right: 20px;
+  display: flex; flex-direction: column; gap: 6px;
+  z-index: 20;
+  transition: opacity 0.3s;
+}
+.mini-indicators.hidden { opacity: 0; pointer-events: none; }
+.mini-ind {
+  display: flex; align-items: center; gap: 6px;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(8px);
+  border-radius: 20px; padding: 4px 10px 4px 6px;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+.mini-ind-emoji { font-size: 12px; }
+.mini-ind-val { font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.7); font-family: monospace; }
 
 /* CUSTOM SLIDERS */
 .slider-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
@@ -740,10 +798,21 @@ html, body {
     🔮
   </button>
 
+  <!-- Mini indicators (when panel closed) -->
+  <div class="mini-indicators" id="mini-indicators">
+    <div class="mini-ind"><span class="mini-ind-emoji">👁</span><span class="mini-ind-val" id="mini-op">50%</span></div>
+    <div class="mini-ind"><span class="mini-ind-emoji">⤡</span><span class="mini-ind-val" id="mini-sc">100%</span></div>
+    <div class="mini-ind"><span class="mini-ind-emoji">↻</span><span class="mini-ind-val" id="mini-rot">0°</span></div>
+  </div>
+
+  <!-- Panel toggle button -->
+  <button class="panel-toggle" id="panel-toggle" onclick="togglePanel()">⚙️</button>
+
   <input type="file" id="file-cam" accept="image/*" style="display:none" onchange="handleFile(event,'cam')">
 
   <!-- BOTTOM PANEL -->
-  <div class="bottom-panel">
+  <div class="bottom-panel" id="bottom-panel">
+    <div class="panel-handle"></div>
     <!-- Opacidad -->
     <div class="slider-row">
       <span class="slider-emoji">👁</span>
@@ -805,7 +874,8 @@ html, body {
   </div>
   <input type="file" id="file-st" accept="image/*" style="display:none" onchange="handleFile(event,'st')">
 
-  <div class="bottom-panel">
+  <div class="bottom-panel" id="bottom-panel-s">
+    <div class="panel-handle"></div>
     <div class="slider-row">
       <span class="slider-emoji">👁</span>
       <div class="slider-wrap" id="sl-sop" data-min="0" data-max="100" data-val="60">
@@ -1139,6 +1209,46 @@ function capturarObra() {
   analizarObra(obraImageData);
 }
 
+// ══════ PANEL TOGGLE ══════
+let panelOpen = false;
+let panelOpenS = false;
+
+function togglePanel() {
+  panelOpen = !panelOpen;
+  document.getElementById('bottom-panel').classList.toggle('open', panelOpen);
+  document.getElementById('panel-toggle').classList.toggle('open', panelOpen);
+  document.getElementById('panel-toggle').textContent = panelOpen ? '✕' : '⚙️';
+  document.getElementById('mini-indicators').classList.toggle('hidden', panelOpen);
+}
+
+function togglePanelS() {
+  panelOpenS = !panelOpenS;
+  document.getElementById('bottom-panel-s').classList.toggle('open', panelOpenS);
+  document.getElementById('panel-toggle-s').classList.toggle('open', panelOpenS);
+  document.getElementById('panel-toggle-s').textContent = panelOpenS ? '✕' : '⚙️';
+}
+
+// Update mini indicators when sliders change
+const origApplyVal = applyVal;
+function applyVal(id, raw) {
+  const v = Math.round(raw);
+  if(id==='sl-op' && document.getElementById('mini-op')) document.getElementById('mini-op').textContent = v+'%';
+  if(id==='sl-sc' && document.getElementById('mini-sc')) document.getElementById('mini-sc').textContent = v+'%';
+  if(id==='sl-rot' && document.getElementById('mini-rot')) document.getElementById('mini-rot').textContent = v+'°';
+  // Call original logic inline
+  setSlider(id,v);
+  if(id==='sl-op'){document.getElementById('trace-img').style.opacity=v/100;document.getElementById('lbl-op').textContent=v+'%';}
+  else if(id==='sl-sc'){imgScale=v/100;document.getElementById('lbl-sc').textContent=v+'%';applyT();}
+  else if(id==='sl-rot'){imgRot=v;document.getElementById('lbl-rot').textContent=v+'°';applyT();}
+  else if(id==='sl-sop'){document.getElementById('static-img').style.opacity=v/100;document.getElementById('lbl-sop').textContent=v+'%';}
+  else if(id==='sl-ssc'){sScale=v/100;document.getElementById('lbl-ssc').textContent=v+'%';applyTs();}
+  else if(id==='sl-srot'){sRot=v;document.getElementById('lbl-srot').textContent=v+'°';applyTs();}
+}
+
+// Close panel when navigating away
+const origGoHome = goHome;
+function goHome() { panelOpen=false; panelOpenS=false; stopCam(); showScreen('home'); }
+
 function abrirTANM() {
   startCamera();
   setTimeout(()=>{ toast('📷 Carga imagen y pulsa 🔮 para analizar'); }, 1200);
@@ -1152,26 +1262,67 @@ async function analizarObra(imageData) {
   try {
     const base64 = imageData.split(',')[1];
     
-    // ── GEMINI API KEY ── AIzaSyBi1F3yKFvpFWzFckcPqEt6H8N-aLWQ8UA ──
+    // ── GEMINI API KEY ── Pega tu key aquí ──
     const GEMINI_KEY = 'TU_API_KEY_AQUI';
     
-    const prompt = `Eres un analista de arte divertido, positivo y creativo para ArtyVinos, una experiencia de pintura con vino. Analiza esta obra de arte pintada por un participante y crea un análisis encantador y compartible en redes sociales.
+    // Add a random seed to force unique responses each time
+    const seed = Math.random().toString(36).substring(7);
+    
+    const prompt = `Eres el Dr. Arturo Vinos, el psicólogo del arte más perspicaz del mundo. Trabajas en ArtyVinos, donde grupos de amigas pintan y beben vino. Tu análisis es TAN preciso que la gente se queda sin palabras. Seed de sesión: ${seed} (usa esto para garantizar que cada análisis es completamente único).
 
-Responde ÚNICAMENTE con un JSON válido con esta estructura exacta (sin markdown, sin backticks):
+MIRA LA IMAGEN CON ATENCIÓN EXTREMA y responde estas preguntas mentalmente antes de escribir:
+- ¿Qué colores EXACTOS ves? ¿Son cálidos, fríos, saturados, suaves?
+- ¿Los trazos son gruesos o finos? ¿Seguros o titubeantes? ¿Rápidos o detallados?
+- ¿Llena todo el lienzo o deja espacios? ¿Dónde está el foco?
+- ¿Hay orden o caos? ¿Mezcla de colores o zonas diferenciadas?
+- ¿Qué forma, figura o tema se pinta?
+
+DICCIONARIO PSICOLÓGICO DEL ARTE (usa esto para el análisis):
+COLORES:
+- Rojo/Naranja intenso → pasión, liderazgo, no pasa desapercibida, le gusta ser el centro
+- Azul/Verde → profundidad emocional, intuición poderosa, amiga leal hasta la muerte  
+- Amarillo/Dorado → optimismo contagioso, energía solar, ilumina cualquier grupo
+- Morado/Violeta → creatividad desbordante, alma vieja, intuición casi sobrenatural
+- Rosa/Fucsia → corazón gigante, da más de lo que recibe, magnética socialmente
+- Colores oscuros+intensos → intensidad emocional, apasionada, todo o nada
+- Colores suaves/pasteles → empatía fuera de lo normal, siente lo que otros no ven
+- Muchos colores juntos → no cabe en una sola definición, rompe esquemas siempre
+
+TRAZOS:
+- Largos y fluidos → confianza en sí misma, fluye con la vida, presencia magnética
+- Cortos y repetidos → mente brillante y analítica, memoria prodigiosa, nada se le escapa
+- Gruesos y decididos → toma decisiones sin mirar atrás, líder natural
+- Finos y delicados → observadora nata, ve lo que otros ignoran, muy selectiva con su círculo
+- Mezcla dinámica → adaptable a cualquier situación, siempre encuentra solución
+
+COMPOSICIÓN:
+- Llena todo el lienzo → generosa sin límites, da el 200% en todo lo que hace
+- Centro bien definido → sabe exactamente lo que quiere, foco de acero
+- Composición libre/caótica → mente no convencional, las reglas son para los aburridos
+- Equilibrada → paz interior trabajada, sabe gestionar sus emociones mejor que nadie
+- Asimétrica → en medio de un cambio importante, algo grande se está gestando
+
+REGLAS ABSOLUTAS:
+1. Menciona AL MENOS 3 elementos visuales ESPECÍFICOS y CONCRETOS del cuadro (colores reales, formas reales, trazos reales que VES)
+2. NUNCA uses frases genéricas como "tu obra refleja creatividad" o "los colores son vibrantes"
+3. Cada análisis debe ser TAN específico que solo funcione para ESE cuadro
+4. Haz que suene como una revelación, no como un horóscopo genérico
+5. Usa el nombre "tú" directamente, habla a la persona
+6. El tono es: amiga muy lista + psicóloga + un punto de humor cómplice
+
+Responde ÚNICAMENTE con JSON válido, sin markdown, sin explicaciones extra:
 {
-  "titulo": "Un título poético y divertido para la obra (máx 6 palabras)",
-  "subtitulo": "Estilo artístico en 3 palabras (ej: EXPRESIONISMO EMOCIONAL VIBRANTE)",
-  "estilo": "Descripción del estilo artístico detectado, técnica y composición. 2-3 frases divertidas y positivas.",
-  "emociones": "Qué emociones y energía transmite la obra. 2-3 frases inspiradoras y positivas.",
-  "personalidad": "Análisis de personalidad basado en los colores y trazos. 2-3 frases halagadoras.",
-  "mensaje": "Un mensaje inspirador del universo para esta persona basado en su obra. 1-2 frases poéticas.",
-  "hashtags": ["hashtag1", "hashtag2", "hashtag3", "hashtag4", "hashtag5"]
-}
-
-Tono: positivo, divertido, poético, inspirador. Perfecto para compartir en Instagram.`;
+  "titulo": "Título poético muy específico para ESTA obra (máx 6 palabras, que suene a Museo del Prado)",
+  "subtitulo": "3 PALABRAS EN MAYÚSCULAS que definan exactamente el estilo de ESTE cuadro",
+  "estilo": "Describe el estilo mencionando colores EXACTOS y elementos CONCRETOS que ves. 3 frases que demuestren que analizaste ESTE cuadro y no otro. Cita algo específico: 'El trazo grueso en la zona derecha...', 'Ese azul que domina el centro...', etc.",
+  "emociones": "Qué emociones transmite ESTA obra. Conecta algo visual concreto con la emoción: 'Esa mancha de rojo en la esquina superior no es casualidad...' 3 frases reveladoras que la hagan decir exactamente lo que sentía mientras pintaba.",
+  "personalidad": "4 rasgos de personalidad MUY específicos, cada uno justificado con algo visual concreto del cuadro. Que suene a que la conoces de toda la vida. Que sea sorprendentemente certero.",
+  "mensaje": "Un mensaje poderoso, poético y personal del universo. 2 frases que quiera guardar en su móvil para siempre.",
+  "hashtags": ["PintaConArtyVinos", "TuArteNoMiente", "DrArturoVinos", y 3 hashtags únicos e inventados específicos para ESTA obra]
+}`;
 
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${GEMINI_KEY}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
