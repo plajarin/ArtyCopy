@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0D0D12">
+<title>Tu Arte No Miente – ArtyVinos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --magenta: #E91E8C;
+    --turquoise: #00BCD4;
+    --dark: #0D0D12;
+    --card: #13131C;
+    --text: #F0EDE8;
+    --muted: #6A6A7A;
+  }
+
+  body {
+    background: var(--dark);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 20px 60px;
+    overflow-x: hidden;
+  }
+
+  /* Glow backgrounds */
+  body::before, body::after {
+    content: '';
+    position: fixed;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 0;
+  }
+  body::before {
+    width: 400px; height: 400px;
+    top: -120px; left: -80px;
+    background: radial-gradient(circle, rgba(233,30,140,0.13) 0%, transparent 70%);
+  }
+  body::after {
+    width: 350px; height: 350px;
+    bottom: -100px; right: -60px;
+    background: radial-gradient(circle, rgba(0,188,212,0.10) 0%, transparent 70%);
+  }
+
+  .wrap {
+    width: 100%;
+    max-width: 480px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Header */
+  .header {
+    text-align: center;
+    padding: 48px 0 24px;
+  }
+  .brand {
+    font-size: 11px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--turquoise);
+    margin-bottom: 14px;
+    font-weight: 500;
+  }
+  .title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(28px, 8vw, 40px);
+    font-weight: 700;
+    line-height: 1.15;
+    background: linear-gradient(135deg, #F0EDE8 30%, var(--magenta) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .subtitle {
+    margin-top: 10px;
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.6;
+    max-width: 320px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .divider {
+    width: 40px; height: 2px;
+    background: linear-gradient(90deg, var(--magenta), var(--turquoise));
+    margin: 18px auto 0;
+    border-radius: 2px;
+  }
+
+  /* Back button */
+  .back-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    cursor: pointer;
+    padding: 4px 0;
+    margin-bottom: -8px;
+    text-decoration: none;
+  }
+  .back-btn:hover { color: var(--text); }
+
+  /* Upload zone */
+  .upload-zone {
+    margin-top: 8px;
+  }
+  .upload-label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    border: 1.5px dashed #2E2E3E;
+    border-radius: 16px;
+    padding: 36px 20px;
+    cursor: pointer;
+    background: var(--card);
+    min-height: 160px;
+    transition: border-color 0.2s, background 0.2s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .upload-label:active {
+    border-color: var(--magenta);
+    background: #17171F;
+  }
+  .upload-icon { font-size: 38px; line-height: 1; }
+  .upload-text { font-size: 14px; color: #7A7A8A; text-align: center; line-height: 1.5; }
+  .upload-cta { color: var(--magenta); font-weight: 600; }
+
+  /* Preview */
+  .preview-img {
+    width: 100%;
+    border-radius: 14px;
+    max-height: 300px;
+    object-fit: contain;
+    display: block;
+    background: #0A0A10;
+    margin-top: 8px;
+  }
+
+  /* Buttons */
+  .btn-analyze {
+    width: 100%;
+    margin-top: 14px;
+    padding: 17px;
+    border-radius: 14px;
+    border: none;
+    background: linear-gradient(135deg, var(--magenta), #A0006A);
+    color: #fff;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    transition: opacity 0.15s, transform 0.15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .btn-analyze:active { opacity: 0.88; transform: scale(0.99); }
+  .btn-analyze:disabled { opacity: 0.45; cursor: not-allowed; }
+
+  .btn-reset {
+    width: 100%;
+    margin-top: 10px;
+    padding: 13px;
+    border-radius: 14px;
+    border: 1px solid #2E2E3E;
+    background: none;
+    color: var(--muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    cursor: pointer;
+    transition: border-color 0.2s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .btn-reset:active { border-color: #4A4A5A; color: #AAA; }
+
+  .btn-repeat {
+    width: 100%;
+    margin-top: 14px;
+    padding: 17px;
+    border-radius: 14px;
+    border: none;
+    background: linear-gradient(135deg, var(--turquoise), #007A8A);
+    color: #fff;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Loading */
+  .loading-card {
+    margin-top: 16px;
+    background: var(--card);
+    border-radius: 20px;
+    padding: 40px 28px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+    border: 1px solid #1E1E2C;
+  }
+  .spinner {
+    width: 38px; height: 38px;
+    border: 3px solid #1E1E2C;
+    border-top: 3px solid var(--magenta);
+    border-radius: 50%;
+    animation: spin 0.9s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-msg {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 17px;
+    color: #C0BDB8;
+    text-align: center;
+    line-height: 1.5;
+  }
+
+  /* Result */
+  .result-wrap {
+    margin-top: 8px;
+    animation: fadeUp 0.6s ease forwards;
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .result-preview {
+    width: 100%;
+    border-radius: 14px;
+    max-height: 200px;
+    object-fit: contain;
+    opacity: 0.8;
+    margin-bottom: 14px;
+  }
+  .result-card {
+    background: var(--card);
+    border-radius: 20px;
+    padding: 32px 26px;
+    border: 1px solid #2A2A3A;
+    box-shadow: 0 0 40px rgba(233,30,140,0.10);
+  }
+  .result-label-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+  .result-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--magenta), var(--turquoise));
+    flex-shrink: 0;
+  }
+  .result-label {
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--turquoise);
+    font-weight: 600;
+  }
+  .result-text {
+    font-family: 'Playfair Display', serif;
+    font-size: 16px;
+    line-height: 1.85;
+    color: #DDD8D0;
+    white-space: pre-wrap;
+  }
+
+  /* Error */
+  .error-card {
+    margin-top: 14px;
+    background: #140808;
+    border: 1px solid #3A1A1A;
+    border-radius: 14px;
+    padding: 18px 20px;
+    font-size: 13px;
+    color: #CC6666;
+    line-height: 1.5;
+  }
+
+  /* Hidden */
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <!-- Back -->
+  <a href="/" class="back-btn">← Volver a ArtyCopy</a>
+
+  <!-- Header -->
+  <div class="header">
+    <div class="brand">ArtyVinos</div>
+    <h1 class="title">Tu Arte No Miente</h1>
+    <p class="subtitle">Fotografía tu cuadro y descubre lo que tus trazos revelan sobre ti.</p>
+    <div class="divider"></div>
+  </div>
+
+  <!-- Upload zone -->
+  <div id="upload-zone" class="upload-zone">
+    <label class="upload-label" for="file-input">
+      <div class="upload-icon">🖼️</div>
+      <div class="upload-text">
+        Toca aquí para fotografiar tu obra<br>
+        <span class="upload-cta">o elegir del carrete</span>
+      </div>
+    </label>
+    <input type="file" id="file-input" accept="image/*" capture="environment" style="display:none">
+  </div>
+
+  <!-- Preview (hidden initially) -->
+  <img id="preview" class="preview-img hidden" alt="Tu obra" />
+
+  <!-- Analyze button (hidden initially) -->
+  <button id="btn-analyze" class="btn-analyze hidden" onclick="analyzeArt()">
+    ✨ Revelar mi alma artística
+  </button>
+  <button id="btn-reset" class="btn-reset hidden" onclick="resetAll()">
+    Cambiar imagen
+  </button>
+
+  <!-- Loading (hidden initially) -->
+  <div id="loading" class="loading-card hidden">
+    <div class="spinner"></div>
+    <p class="loading-msg" id="loading-msg">Leyendo entre tus trazos…</p>
+  </div>
+
+  <!-- Result (hidden initially) -->
+  <div id="result-wrap" class="result-wrap hidden">
+    <img id="result-preview" class="result-preview" alt="Tu obra" />
+    <div class="result-card">
+      <div class="result-label-row">
+        <div class="result-dot"></div>
+        <span class="result-label">Lectura de tu obra</span>
+      </div>
+      <p class="result-text" id="result-text"></p>
+    </div>
+    <button class="btn-repeat" onclick="resetAll()">🎨 Analizar otra obra</button>
+  </div>
+
+  <!-- Error (hidden initially) -->
+  <div id="error-card" class="error-card hidden"></div>
+
+</div>
+
+<script>
+  const LOADING_MSGS = [
+    "Leyendo entre tus trazos…",
+    "Escuchando lo que tu paleta susurra…",
+    "Descubriendo el alma de tu obra…",
+    "Interpretando tu mundo interior…"
+  ];
+
+  let currentImageData = null; // { base64, mediaType, url }
+
+  // File input handler
+  document.getElementById('file-input').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (!file || !file.type.startsWith('image/')) return;
+    const reader = new FileReader();
+    reader.onload = function(ev) {
+      const dataUrl = ev.target.result;
+      const base64 = dataUrl.split(',')[1];
+      currentImageData = { base64, mediaType: file.type, url: dataUrl };
+      showPreview();
+    };
+    reader.readAsDataURL(file);
+  });
+
+  function showPreview() {
+    document.getElementById('upload-zone').classList.add('hidden');
+    const preview = document.getElementById('preview');
+    preview.src = currentImageData.url;
+    preview.classList.remove('hidden');
+    document.getElementById('btn-analyze').classList.remove('hidden');
+    document.getElementById('btn-reset').classList.remove('hidden');
+    document.getElementById('error-card').classList.add('hidden');
+  }
+
+  function resetAll() {
+    currentImageData = null;
+    document.getElementById('file-input').value = '';
+    document.getElementById('upload-zone').classList.remove('hidden');
+    document.getElementById('preview').classList.add('hidden');
+    document.getElementById('btn-analyze').classList.add('hidden');
+    document.getElementById('btn-reset').classList.add('hidden');
+    document.getElementById('loading').classList.add('hidden');
+    document.getElementById('result-wrap').classList.add('hidden');
+    document.getElementById('error-card').classList.add('hidden');
+  }
+
+  async function analyzeArt() {
+    if (!currentImageData) return;
+
+    // Show loading
+    document.getElementById('preview').classList.add('hidden');
+    document.getElementById('btn-analyze').classList.add('hidden');
+    document.getElementById('btn-reset').classList.add('hidden');
+    document.getElementById('result-wrap').classList.add('hidden');
+    document.getElementById('error-card').classList.add('hidden');
+    document.getElementById('loading-msg').textContent =
+      LOADING_MSGS[Math.floor(Math.random() * LOADING_MSGS.length)];
+    document.getElementById('loading').classList.remove('hidden');
+
+    try {
+      const res = await fetch('/api/analizar-arte', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          imageBase64: currentImageData.base64,
+          mediaType: currentImageData.mediaType
+        })
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.error || 'Error del servidor');
+      if (!data.analisis) throw new Error('Respuesta vacía');
+
+      // Show result
+      document.getElementById('loading').classList.add('hidden');
+      document.getElementById('result-preview').src = currentImageData.url;
+      document.getElementById('result-text').textContent = data.analisis;
+      document.getElementById('result-wrap').classList.remove('hidden');
+
+    } catch (err) {
+      document.getElementById('loading').classList.add('hidden');
+      const errCard = document.getElementById('error-card');
+      errCard.textContent = '⚠️ ' + err.message;
+      errCard.classList.remove('hidden');
+      // Show buttons again
+      document.getElementById('preview').classList.remove('hidden');
+      document.getElementById('btn-analyze').classList.remove('hidden');
+      document.getElementById('btn-reset').classList.remove('hidden');
+    }
+  }
+</script>
+</body>
+</html>
