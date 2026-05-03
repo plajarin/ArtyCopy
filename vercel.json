@@ -1,5 +1,6 @@
 {
   "rewrites": [
-    { "source": "/((?!api/).*)", "destination": "/index.html" }
+    { "source": "/artyflow", "destination": "/public/artyflow.html" },
+    { "source": "/((?!api/).*)", "destination": "/public/index.html" }
   ]
 }
